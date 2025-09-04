@@ -30,9 +30,12 @@ class FirstScreen extends StatelessWidget {
           ),
         ],
       ),
-
       bottomNavigationBar: BottomNavigationBar(
         items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.add_chart_rounded),
+            label: 'Orders',
+          ),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
