@@ -40,9 +40,13 @@ class _FirstScreenState extends State<FirstScreen> {
   }
 }
 
-class OrdersWidget extends StatelessWidget {
+class OrdersWidget extends StatefulWidget {
   const OrdersWidget({super.key});
+  @override
+  State<OrdersWidget> createState() => StatefulOrdersWidget();
+}
 
+class StatefulOrdersWidget extends State<OrdersWidget> {
   @override
   Widget build(BuildContext context) {
     return Center(child: Text('This is the Orders page.'));

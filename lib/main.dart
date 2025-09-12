@@ -5,6 +5,8 @@ import 'package:test2/app_screens/first_screen.dart';
 void main() => runApp(MyFlutterApp());
 
 class MyFlutterApp extends StatelessWidget {
+  const MyFlutterApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
