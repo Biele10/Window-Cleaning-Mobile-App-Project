@@ -19,7 +19,7 @@ class _FirstScreenState extends State<FirstScreen> {
         centerTitle: true,
         foregroundColor: Colors.grey[50],
       ),
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: Color(0xFF2E8B57),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (int index) {
@@ -71,6 +71,34 @@ class HomeWidget extends StatelessWidget {
                 fontSize: 22,
                 fontWeight: FontWeight.bold,
                 color: Colors.white,
+              ),
+            ),
+          ),
+        ),
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+                  Set<WidgetState> states,
+                ) {
+                  if (states.contains(WidgetState.pressed)) {
+                    return Color(0xFF292828);
+                  }
+
+                  return Color(0xFF3B3939);
+                }),
+              ),
+
+              onPressed: () {},
+              child: Text(
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFD9D9D9),
+                ),
+                'Add Customer',
               ),
             ),
           ),
