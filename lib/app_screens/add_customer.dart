@@ -35,11 +35,11 @@ class AddCustomer extends StatelessWidget {
           Center(
             child: ElevatedButton(
               onPressed: () {},
-              child: Icon(Icons.add),
               style: ButtonStyle(
-                minimumSize: MaterialStateProperty.all(Size(65, 60)),
-                maximumSize: MaterialStateProperty.all(Size(65, 60)),
+                minimumSize: WidgetStateProperty.all(Size(65, 60)),
+                maximumSize: WidgetStateProperty.all(Size(65, 60)),
               ),
+              child: Icon(Icons.add),
             ),
           ),
         ],
