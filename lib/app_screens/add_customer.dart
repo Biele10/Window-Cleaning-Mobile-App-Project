@@ -8,10 +8,10 @@ class AddCustomer extends StatefulWidget {
 
 class _AddCustomerState extends State<AddCustomer> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
+  final _phoneController = TextEditingController();
+  final _emailController = TextEditingController();
   @override
   Widget build(BuildContext context) {
-    final fields = ["Name", "Address", "Price", "Regularity", "Phone Number"];
     return Form(
       key: _formKey,
       child: Scaffold(
@@ -23,14 +23,50 @@ class _AddCustomerState extends State<AddCustomer> {
 
         body: Column(
           children: [
-            ...fields.map((label) {
-              return Padding(
-                padding: const EdgeInsets.all(20.0),
-                child: TextFormField(
-                  decoration: InputDecoration(labelText: label),
-                ),
-              );
-            }),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: TextFormField(
+                decoration: InputDecoration(labelText: 'Name'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'This detail is required.';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: TextFormField(
+                decoration: InputDecoration(labelText: 'Address'),
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'This detail is required.';
+                  }
+                  return null;
+                },
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: TextFormField(
+                decoration: InputDecoration(labelText: 'Regularity'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: TextFormField(
+                controller: _emailController,
+                decoration: InputDecoration(labelText: 'Email Address'),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(20.0),
+              child: TextFormField(
+                controller: _phoneController,
+                decoration: InputDecoration(labelText: 'Phone Number'),
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: TextField(
@@ -43,7 +79,29 @@ class _AddCustomerState extends State<AddCustomer> {
             ),
             Center(
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () {
+                  final formValidate = _formKey.currentState!.validate();
+                  final phoneEmpty = _phoneController.text.trim().isEmpty;
+                  final emailEmpty = _emailController.text.trim().isEmpty;
+
+                  if (formValidate && phoneEmpty && emailEmpty) {
+                    // checks to see if either email is empty,
+                    // phone or rest of the required fields
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Please enter either a phone number or email.',
+                        ),
+                      ),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Data is being processed...'),
+                      ),
+                    );
+                  }
+                },
                 style: ButtonStyle(
                   minimumSize: WidgetStateProperty.all(Size(65, 60)),
                   maximumSize: WidgetStateProperty.all(Size(65, 60)),
