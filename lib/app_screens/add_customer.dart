@@ -10,6 +10,8 @@ class _AddCustomerState extends State<AddCustomer> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   final _phoneController = TextEditingController();
   final _emailController = TextEditingController();
+  final TextEditingController _controller = TextEditingController();
+  // allows for each individual text box to be accessed
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -26,6 +28,7 @@ class _AddCustomerState extends State<AddCustomer> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: TextFormField(
+                controller: _controller,
                 decoration: InputDecoration(labelText: 'Name'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -38,6 +41,7 @@ class _AddCustomerState extends State<AddCustomer> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: TextFormField(
+                controller: _controller,
                 decoration: InputDecoration(labelText: 'Address'),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -50,6 +54,7 @@ class _AddCustomerState extends State<AddCustomer> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: TextFormField(
+                controller: _controller,
                 decoration: InputDecoration(labelText: 'Regularity'),
               ),
             ),
@@ -70,6 +75,7 @@ class _AddCustomerState extends State<AddCustomer> {
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: TextField(
+                controller: _controller,
                 maxLines: 6,
                 decoration: InputDecoration(
                   labelText: "Additional Information",
