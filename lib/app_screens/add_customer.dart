@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class AddCustomer extends StatefulWidget {
   const AddCustomer({super.key});
@@ -108,9 +111,7 @@ class _AddCustomerState extends State<AddCustomer> {
                         );
                       } else {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Data is being processed...'),
-                          ),
+                          const SnackBar(content: Text('Saving data...')),
                         );
                       }
                     },
@@ -127,5 +128,28 @@ class _AddCustomerState extends State<AddCustomer> {
         ),
       ),
     );
+  }
+}
+
+Future<http.Response> createAlbum(String title) {
+  return http.post(
+    Uri.parse('https://jsonplaceholder.typicode.com/albums'),
+    headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
+    body: jsonEncode(<String, String>{'title': title}),
+  );
+}
+
+class Album {
+  // album class where data from server is converted back
+  final int id;
+  final String title;
+
+  const Album({required this.id, required this.title});
+
+  factory Album.fromJson(Map<String, dynamic> json) {
+    return switch (json) {
+      {'id': int id, 'title': String title} => Album(id: id, title: title),
+      _ => throw const FormatException('Failed to load album.'),
+    };
   }
 }
