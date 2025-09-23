@@ -113,6 +113,21 @@ class _AddCustomerState extends State<AddCustomer> {
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(content: Text('Saving data...')),
                         );
+                        createAlbum(
+                          _nameController.text,
+                          _addressController.text,
+                          _regularityController.text,
+                          _emailController.text,
+                          _phoneController.text,
+                          _additionalinfoController.text,
+                        );
+                        _nameController.text =
+                            ''; // clears all text fields so data isn't sent twice by accident
+                        _addressController.clear();
+                        _regularityController.clear();
+                        _emailController.clear();
+                        _phoneController.clear();
+                        _additionalinfoController.clear();
                       }
                     },
                     style: ButtonStyle(
@@ -131,11 +146,27 @@ class _AddCustomerState extends State<AddCustomer> {
   }
 }
 
-Future<http.Response> createAlbum(String title) {
+Future<http.Response> createAlbum(
+  // function that converts user input into json format
+  String name,
+  String address,
+  String regularity,
+  String emailAddress,
+  String phoneNumber,
+  String addInfo,
+) {
   return http.post(
-    Uri.parse('https://jsonplaceholder.typicode.com/albums'),
+    Uri.parse('https://Calax.eu.pythonanywhere.com/receive'),
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
-    body: jsonEncode(<String, String>{'title': title}),
+    body: jsonEncode(<String, String>{
+      // encodes all the saved data into json format
+      'Name': name,
+      'Address': address,
+      'Regularity': regularity,
+      'Email': emailAddress,
+      'Phone': phoneNumber,
+      'AddInfo': addInfo,
+    }),
   );
 }
 
