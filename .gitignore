@@ -46,4 +46,4 @@ app.*.map.json
 
 # other private stuff
 
-.env
+*.env		# ignores all env files
