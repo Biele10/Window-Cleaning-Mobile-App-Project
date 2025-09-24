@@ -1,4 +1,14 @@
 from flask import Flask, request, jsonify
+from pathlib import Path
+from dotenv import load_dotenv
+import os
+
+env_path = Path("variables.env")
+load_dotenv(dotenv_path=env_path)       # loads in private variables
+
+db_user = os.getenv("database_user")
+print(db_user)
+
 
 app = Flask(__name__)
 
