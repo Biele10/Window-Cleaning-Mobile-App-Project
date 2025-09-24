@@ -2,13 +2,21 @@ from flask import Flask, request, jsonify
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import mysql.connector   # imports mysql library in order to connect to database
+                # with its functions
+
 
 env_path = Path("variables.env")
 load_dotenv(dotenv_path=env_path)       # loads in private variables
 
-db_user = os.getenv("database_user")
-print(db_user)
+database_connect = mysql.connector.connect(         # establishes connection to database
+    host=os.getenv("database_host"),
+    user=os.getenv("database_user"),
+    password=os.getenv("database_password"),     # information to specify database to add to
+    database=os.getenv("database")      # host, username, password and database name
+)
 
+cursor = database_connect.cursor()   # allows for Python code to execute SQL statements
 
 app = Flask(__name__)
 
