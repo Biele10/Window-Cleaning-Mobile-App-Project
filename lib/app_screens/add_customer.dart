@@ -160,6 +160,7 @@ Future<http.Response> createAlbum(
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{
       // encodes all the saved data into json format
+      'RequestType': 'add_customer', // tells the server the type of request
       'Name': name,
       'Address': address,
       'Regularity': regularity,
