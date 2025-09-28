@@ -13,6 +13,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  connectivity_plus: ^4.0.2   # allows for flutter to check whether there is an internet
+                              # connection or not
 
   cupertino_icons: ^1.0.8
   http: ^1.5.0
@@ -29,6 +31,7 @@ flutter:
 
   # To add assets to your application, add an assets section, like this:
   assets:
-   - images/
+   - images/    # all images in the folder will be compiled into main program
+   - jobs/      # folder that will be used to store jobs
 
 

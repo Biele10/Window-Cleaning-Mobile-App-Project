@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:test2/app_screens/add_customer.dart';
+import 'package:test2/app_screens/add_job.dart';
 
 class FirstScreen extends StatefulWidget {
   const FirstScreen({super.key});
@@ -31,7 +32,7 @@ class _FirstScreenState extends State<FirstScreen> {
         items: const [
           BottomNavigationBarItem(
             icon: Icon(Icons.add_chart_rounded),
-            label: 'Orders',
+            label: 'Customers & Orders',
           ),
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
@@ -77,7 +78,7 @@ class HomeWidget extends StatelessWidget {
           ),
         ),
         Align(
-          alignment: Alignment.bottomRight,
+          alignment: Alignment.bottomLeft,
           child: Padding(
             padding: EdgeInsets.all(20.0),
             child: ElevatedButton(
@@ -105,6 +106,40 @@ class HomeWidget extends StatelessWidget {
                   color: Color(0xFFD9D9D9),
                 ),
                 'Add Customer',
+              ),
+            ),
+          ),
+        ),
+
+        Align(
+          alignment: Alignment.bottomRight,
+          child: Padding(
+            padding: EdgeInsets.all(20.0),
+            child: ElevatedButton(
+              style: ButtonStyle(
+                backgroundColor: WidgetStateProperty.resolveWith<Color?>((
+                  Set<WidgetState> states,
+                ) {
+                  if (states.contains(WidgetState.pressed)) {
+                    return Color(0xFF292828);
+                  }
+
+                  return Color(0xFF3B3939);
+                }),
+              ),
+
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AddJob()),
+                );
+              },
+              child: Text(
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFFD9D9D9),
+                ),
+                'Add Job',
               ),
             ),
           ),

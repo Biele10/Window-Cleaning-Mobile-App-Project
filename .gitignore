@@ -48,4 +48,4 @@ app.*.map.json
 
 *.env		# ignores all env files
 
-Python Stuff/variables.env
+Python-Stuff/variables.env

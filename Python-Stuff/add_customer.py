@@ -41,12 +41,17 @@ def add_customer(data):         # function that stores customer data in database
 
     values = (name, address, regularity, email, phone, add_info)        # creates tuple which can be passed into SQL statement
 
-    cursor.execute("INSERT INTO Customers (Name, Address, Regularity, Email, Phone, Additional_Information) VALUES (%s, %s, %s, %s, %s, %s)", values)       # adds values to database
+    customer_sql_statement = "INSERT INTO Customers (Name, Address, Regularity, Email, Phone, Additional_Information) VALUES (%s, %s, %s, %s, %s, %s)"      
+
+    # prevents SQL as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
+
+    cursor.execute(customer_sql_statement, values)       # adds values to database
 
     database_connect.commit()   # commits the change to the database
 
 
-
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000, debug=True)
 
 
 

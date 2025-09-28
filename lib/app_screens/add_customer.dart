@@ -24,6 +24,7 @@ class _AddCustomerState extends State<AddCustomer> {
       key: _formKey,
       child: Scaffold(
         appBar: AppBar(
+          centerTitle: true,
           title: Text('Add Customer Details'),
           backgroundColor: Colors.grey[900],
           foregroundColor: Colors.grey[50],
@@ -156,7 +157,7 @@ Future<http.Response> createAlbum(
   String addInfo,
 ) {
   return http.post(
-    Uri.parse('https://Calax.eu.pythonanywhere.com/receive'),
+    Uri.parse('http://192.168.7.150:5000/receive'),
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{
       // encodes all the saved data into json format
