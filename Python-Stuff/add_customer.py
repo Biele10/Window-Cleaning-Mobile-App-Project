@@ -20,17 +20,10 @@ cursor = database_connect.cursor()   # allows for Python code to execute SQL sta
 
 app = Flask(__name__)
 
-@app.route('/receive', methods=['POST'])
-def receive():      # this function manages which functions are carried out depending on the request type 
-    data = request.get_json()  # this parses the JSON body
+@app.route('/add_customer', methods=['POST'])
+def add_customer():         # function that stores customer data in database
 
-    if data.get('RequestType') == "add_customer":
-
-        add_customer(data)       # executes the add_customer function
-
-    return jsonify({"status": "ok", "message": f"Hello!"})
-
-def add_customer(data):         # function that stores customer data in database
+    data = request.get_json()       # pulls data from user input in json form
 
     name = data.get('Name')
     address = data.get('Address')
@@ -49,9 +42,9 @@ def add_customer(data):         # function that stores customer data in database
 
     database_connect.commit()   # commits the change to the database
 
+@app.route('/get_customers', methods=['GET'])
+def get_customers(data):
+    return "nice"
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-
-
-

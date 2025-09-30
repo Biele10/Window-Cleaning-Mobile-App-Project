@@ -31,9 +31,9 @@ class _AddJobState extends State<AddJob> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                TextFormField(decoration: InputDecoration(hintText: "Time")),
-
                 TextFormField(decoration: InputDecoration(hintText: "Date")),
+
+                TextFormField(decoration: InputDecoration(hintText: "Time")),
               ],
             ),
           ),
@@ -53,7 +53,7 @@ Future<http.Response> createAlbum(
   String addInfo,
 ) {
   return http.post(
-    Uri.parse('http://192.168.7.150:5000/receive'),
+    Uri.parse('http://192.168.7.150:5000/add_customer'),
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{
       // encodes all the saved data into json format

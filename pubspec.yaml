@@ -13,8 +13,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  connectivity_plus: ^4.0.2   # allows for flutter to check whether there is an internet
-                              # connection or not
+  connectivity_plus: ^4.0.2   # allows for dart to see what type of connection there is
+  internet_connection_checker: ^0.0.1+2   # allows for dart to determine whether a connection
+                                          # is possible or not
 
   cupertino_icons: ^1.0.8
   http: ^1.5.0
