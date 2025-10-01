@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test2/app_screens/first_screen.dart';
+import 'package:test2/app_screens/account.dart';
 import 'package:test2/utilities/common_functions.dart';
 
 void main() async {
@@ -53,13 +53,16 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
     } else if (connection_result && mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => FirstScreen()),
+        MaterialPageRoute(builder: (context) => AccountPage()),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(backgroundColor: Colors.white);
+    return MaterialApp(
+      title: 'Sponge',
+      theme: ThemeData(fontFamily: 'FunnelDisplay'),
+    );
   }
 }

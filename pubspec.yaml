@@ -35,4 +35,7 @@ flutter:
    - images/    # all images in the folder will be compiled into main program
    - jobs/      # folder that will be used to store jobs
 
-
+  fonts:
+    - family: FunnelDisplay
+      fonts:
+        - asset: fonts/FunnelDisplay-SemiBold.ttf
