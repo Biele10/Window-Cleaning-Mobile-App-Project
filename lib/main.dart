@@ -28,12 +28,12 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
   Future<void> check_connectivity() async {
     internet_check ic =
         internet_check(); // creates an instance of internet_check class
-    bool connection_result = await ic.is_connected();
+    bool connectionResult = await ic.is_connected();
     setState(() {
-      connectivityStatus = connection_result;
+      connectivityStatus = connectionResult;
     });
 
-    if (!connection_result && mounted) {
+    if (!connectionResult && mounted) {
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -50,7 +50,7 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
           ],
         ),
       );
-    } else if (connection_result && mounted) {
+    } else if (connectionResult && mounted) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => AccountPage()),
@@ -62,7 +62,17 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Sponge',
-      theme: ThemeData(fontFamily: 'FunnelDisplay'),
+      theme: ThemeData(
+        fontFamily: 'FunnelDisplay',
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            side: const BorderSide(color: Color(0xFF4f4b4c), width: 2.0),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(8)),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

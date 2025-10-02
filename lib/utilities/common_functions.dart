@@ -7,9 +7,9 @@ class internet_check {
   // determines whether it is safe or not to make a
   // request to the internet
   Future is_connected() async {
-    var connect_result = await Connectivity().checkConnectivity();
-    if (connect_result == ConnectivityResult.mobile ||
-        connect_result == ConnectivityResult.wifi) {
+    var connectResult = await Connectivity().checkConnectivity();
+    if (connectResult == ConnectivityResult.mobile ||
+        connectResult == ConnectivityResult.wifi) {
       return await InternetConnectionChecker().hasConnection;
     }
     return false;
