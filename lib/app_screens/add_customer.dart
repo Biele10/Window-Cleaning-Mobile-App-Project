@@ -35,12 +35,20 @@ class _AddCustomerState extends State<AddCustomer> {
             padding: const EdgeInsets.all(10.0),
             child: Column(
               children: [
+                // contains list of all TextFormField widgets
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextFormField(
-                    controller: _nameController,
-                    decoration: InputDecoration(labelText: 'Name'),
+                    controller:
+                        _nameController, // allows for text that is entered
+                    // within a textbox to be retrieved
+                    decoration: InputDecoration(
+                      labelText: 'Name',
+                    ), // hint text to tell user what to
+                    // type in there
                     validator: (value) {
+                      // used in order to verify whether
+                      // the user has entered any information at all
                       if (value == null || value.isEmpty) {
                         return 'This detail is required.';
                       }
@@ -95,8 +103,13 @@ class _AddCustomerState extends State<AddCustomer> {
                 ),
                 Center(
                   child: ElevatedButton(
+                    // + button at bottom of screen
+                    // to submit information
                     onPressed: () {
                       final formValidate = _formKey.currentState!.validate();
+                      // the formValidate checks the validate values of each
+                      // textbox, if one of them hasn't been filled in, the if
+                      // statement below will run
                       final phoneEmpty = _phoneController.text.trim().isEmpty;
                       final emailEmpty = _emailController.text.trim().isEmpty;
 
@@ -105,6 +118,7 @@ class _AddCustomerState extends State<AddCustomer> {
                         // phone or rest of the required fields
                         ScaffoldMessenger.of(context).showSnackBar(
                           const SnackBar(
+                            // small pop up at bottom of screen temporarily
                             content: Text(
                               'Please enter either a phone number or email.',
                             ),
@@ -115,6 +129,8 @@ class _AddCustomerState extends State<AddCustomer> {
                           const SnackBar(content: Text('Saving data...')),
                         );
                         createAlbum(
+                          // retrieves all text data inputted
+                          // from user
                           _nameController.text,
                           _addressController.text,
                           _regularityController.text,
@@ -122,8 +138,9 @@ class _AddCustomerState extends State<AddCustomer> {
                           _phoneController.text,
                           _additionalinfoController.text,
                         );
-                        _nameController.text =
-                            ''; // clears all text fields so data isn't sent twice by accident
+                        _nameController
+                            .clear(); // clears all text fields so data isn't
+                        // sent twice by accident
                         _addressController.clear();
                         _regularityController.clear();
                         _emailController.clear();
@@ -148,6 +165,11 @@ class _AddCustomerState extends State<AddCustomer> {
 }
 
 Future<http.Response> createAlbum(
+  // future is a data type that means that
+  // the value that is to be returned may not come back instantly so,
+  // the operation is asynchronous meaning other operations can run while the
+  // function is running
+
   // function that converts user input into json format
   String name,
   String address,
@@ -157,11 +179,13 @@ Future<http.Response> createAlbum(
   String addInfo,
 ) {
   return http.post(
-    Uri.parse('http://192.168.7.150:5000/receive'),
+    Uri.parse('http://192.168.7.150:5000/receive'), // url of server to send
+    // data to
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{
       // encodes all the saved data into json format
       'RequestType': 'add_customer', // tells the server the type of request
+      // add_customer is the name of a function in the Python flask file
       'Name': name,
       'Address': address,
       'Regularity': regularity,

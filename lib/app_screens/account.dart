@@ -1,6 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:test2/app_screens/login.dart';
 
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
@@ -15,27 +16,44 @@ class AccountPage extends StatelessWidget {
           children: [
             OutlinedButton(
               style: OutlinedButton.styleFrom(
-                backgroundColor: const Color(0xFF1c2a2e),
+                // styleFrom replaces the need of creating a ButtonStyle object,
+                // instead visual properties can be easily altered, removes the
+                // need for all the WidgetStateProperty stuff
+                backgroundColor: const Color(0xFF1c2a2e), // if ButtonStyle was
+                // used here, i would have to wrap Color
+                // in WidgetStateProperty.all()
                 alignment: Alignment.topCenter,
                 side: BorderSide.none,
               ),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  // sends user to the log in page and pushes
+                  // the account page onto the widget stack
+                  context,
+                  MaterialPageRoute(builder: (context) => LogIn()),
+                );
+              },
               child: Text(
                 'Log In',
                 style: TextStyle(
                   fontSize: 50,
                   fontFamily: 'FunnelDisplay',
-                  foreground: Paint()
-                    ..shader = ui.Gradient.linear(
-                      Offset(0, 20),
-                      Offset(300, 20),
-                      <Color>[Colors.green, Colors.lightBlueAccent],
-                    ),
+                  foreground:
+                      Paint() // essentially creates a canvas to paint on
+                        ..shader = ui.Gradient.linear(
+                          Offset(0, 20), // defines where the gradient starts and
+                          // ends
+                          Offset(300, 20),
+                          <Color>[Colors.green, Colors.lightBlueAccent],
+                          // defines the list of colours to be used for the
+                          // gradient
+                        ),
                 ),
               ),
             ),
             Padding(padding: EdgeInsets.all(30.0)),
             OutlinedButton(
+              // same as log in page
               style: OutlinedButton.styleFrom(
                 backgroundColor: const Color(0xFF1c2a2e),
                 alignment: Alignment.topCenter,
