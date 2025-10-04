@@ -2,6 +2,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
 import 'package:test2/app_screens/login.dart';
+import 'package:test2/app_screens/signup.dart';
 
 class AccountPage extends StatelessWidget {
   const AccountPage({super.key});
@@ -60,7 +61,14 @@ class AccountPage extends StatelessWidget {
                 side: BorderSide.none,
               ),
 
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  // sends user to the sign up page and pushes
+                  // the account page onto the widget stack
+                  context,
+                  MaterialPageRoute(builder: (context) => SignUp()),
+                );
+              },
               child: Text(
                 'Sign Up',
                 style: TextStyle(
