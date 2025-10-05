@@ -46,14 +46,6 @@ class _AddCustomerState extends State<AddCustomer> {
                       labelText: 'Name',
                     ), // hint text to tell user what to
                     // type in there
-                    validator: (value) {
-                      // used in order to verify whether
-                      // the user has entered any information at all
-                      if (value == null || value.isEmpty) {
-                        return 'This detail is required.';
-                      }
-                      return null;
-                    },
                   ),
                 ),
                 Padding(
@@ -63,6 +55,8 @@ class _AddCustomerState extends State<AddCustomer> {
                     decoration: InputDecoration(labelText: 'Address'),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
+                        // used in order to verify whether
+                        // the user has entered any information at all
                         return 'This detail is required.';
                       }
                       return null;
