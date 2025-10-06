@@ -64,6 +64,7 @@ class _AddCustomerState extends State<AddCustomer> {
                   ),
                 ),
                 Padding(
+                  // pure leetcode today - sorry no updates to this project
                   padding: const EdgeInsets.all(20.0),
                   child: TextFormField(
                     controller: _regularityController,
