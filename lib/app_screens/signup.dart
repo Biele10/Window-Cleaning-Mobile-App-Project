@@ -12,3 +12,7 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(appBar: AppBar(title: Text('Sign Up')));
   }
 }
+
+// List<String> hash_password(String password) {
+// String hashed_password = BCrypt.hashpw(password, BCrypt.gensalt());
+//}
