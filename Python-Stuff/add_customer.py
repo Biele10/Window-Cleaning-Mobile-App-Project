@@ -63,7 +63,9 @@ def ValidationCheck(details) -> bool:    # returns true or false depending on if
     return True
 
 @app.route('/sign_up', methods=['POST'])
-def sign_up
+
+def sign_up(username : str, password : str):
+    return None
 
 
 
