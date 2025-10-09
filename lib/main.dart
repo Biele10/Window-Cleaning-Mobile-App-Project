@@ -22,13 +22,13 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
   @override
   void initState() {
     super.initState();
-    check_connectivity();
+    checkConnectivity();
   }
 
-  Future<void> check_connectivity() async {
-    internet_check ic =
-        internet_check(); // creates an instance of internet_check class
-    bool connectionResult = await ic.is_connected();
+  Future<void> checkConnectivity() async {
+    InternetCheck ic =
+        InternetCheck(); // creates an instance of internet_check class
+    bool connectionResult = await ic.isConnected();
     setState(() {
       connectivityStatus = connectionResult;
     });
@@ -43,7 +43,7 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop();
-                check_connectivity(); // allows user to enable internet and try again
+                checkConnectivity(); // allows user to enable internet and try again
               },
               child: const Text("Retry"),
             ),
@@ -61,6 +61,7 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Sponge',
       theme: ThemeData(
         fontFamily: 'FunnelDisplay',
