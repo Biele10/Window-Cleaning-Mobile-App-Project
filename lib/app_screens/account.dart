@@ -24,7 +24,7 @@ class AccountPage extends StatelessWidget {
                 // used here, i would have to wrap Color
                 // in WidgetStateProperty.all()
                 alignment: Alignment.topCenter,
-                side: BorderSide.none,
+                side: BorderSide(width: 5),
               ),
               onPressed: () {
                 Navigator.push(
@@ -54,11 +54,11 @@ class AccountPage extends StatelessWidget {
             ),
             Padding(padding: EdgeInsets.all(30.0)),
             OutlinedButton(
-              // same as log in page
+              // same as log in button
               style: OutlinedButton.styleFrom(
                 backgroundColor: const Color(0xFF1c2a2e),
                 alignment: Alignment.topCenter,
-                side: BorderSide.none,
+                side: BorderSide(width: 5),
               ),
 
               onPressed: () {
