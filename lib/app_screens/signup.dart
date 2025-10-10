@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
@@ -11,8 +14,10 @@ class _SignUpState extends State<SignUp> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF98a2fa),
-      appBar: AppBar(title: Text('Sign Up')),
+      backgroundColor: Color(0xFF37454a),
+      appBar: AppBar(
+        title: Text('Sign Up', style: TextStyle(color: Color(0xFF000000))),
+      ),
       body: SingleChildScrollView(
         // if screen is too small, user can scroll
         // to fill in whole form and submit
@@ -28,25 +33,41 @@ class _SignUpState extends State<SignUp> {
                   top: 50.0,
                 ),
                 child: TextFormField(
-                  decoration: const InputDecoration(hintText: 'Forename'),
+                  style: TextStyle(color: Color(0xFFffffff)),
+                  decoration: const InputDecoration(
+                    hintText: 'Forename',
+                    hintStyle: TextStyle(color: Color(0xFFffffff)),
+                  ),
                 ),
               ),
               Padding(
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
-                  decoration: const InputDecoration(hintText: 'Surname'),
+                  style: TextStyle(color: Color(0xFFffffff)),
+                  decoration: const InputDecoration(
+                    hintText: 'Surname',
+                    hintStyle: TextStyle(color: Color(0xFFffffff)),
+                  ),
                 ),
               ),
               Padding(
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
-                  decoration: const InputDecoration(hintText: 'Email'),
+                  style: TextStyle(color: Color(0xFFffffff)),
+                  decoration: const InputDecoration(
+                    hintText: 'Email',
+                    hintStyle: TextStyle(color: Color(0xFFffffff)),
+                  ),
                 ),
               ),
               Padding(
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
-                  decoration: const InputDecoration(hintText: 'Password'),
+                  style: TextStyle(color: Color(0xFFffffff)),
+                  decoration: const InputDecoration(
+                    hintText: 'Password',
+                    hintStyle: TextStyle(color: Color(0xFFffffff)),
+                  ),
                 ),
               ),
               Padding(
@@ -58,7 +79,10 @@ class _SignUpState extends State<SignUp> {
                     side: BorderSide(width: 5.0),
                     backgroundColor: Color(0xFF1c2a2e),
                   ),
-                  child: Text("Submit", style: TextStyle()),
+                  child: Text(
+                    "Submit",
+                    style: TextStyle(color: Color(0xFFffffff)),
+                  ),
                 ),
               ),
             ],
@@ -67,6 +91,32 @@ class _SignUpState extends State<SignUp> {
       ),
     );
   }
+}
+
+Future<http.Response> createAlbum(
+  // future is a data type that means that
+  // the value that is to be returned may not come back instantly so,
+  // the operation is asynchronous meaning other operations can run while the
+  // function is running
+
+  // function that converts user input into json format
+  String forename,
+  String surname,
+  String email,
+  String password,
+) {
+  return http.post(
+    Uri.parse('http://192.168.7.150:5000/sign_up'), // url of server to send
+    // data to
+    headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
+    body: jsonEncode(<String, String>{
+      // encodes all the saved data into json format
+      'Forename': forename,
+      'Surname': surname,
+      'Email': email,
+      'Password': password,
+    }),
+  );
 }
 
 // List<String> hash_password(String password) {

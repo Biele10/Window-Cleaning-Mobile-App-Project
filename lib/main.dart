@@ -65,6 +65,11 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
       title: 'Sponge',
       theme: ThemeData(
         fontFamily: 'FunnelDisplay',
+        textTheme: const TextTheme(
+          bodyLarge: TextStyle(color: Colors.black),
+          bodyMedium: TextStyle(color: Colors.black87),
+          titleLarge: TextStyle(color: Colors.red),
+        ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Color(0xFF4f4b4c), width: 2.0),
