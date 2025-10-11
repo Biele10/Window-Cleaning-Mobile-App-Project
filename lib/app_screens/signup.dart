@@ -11,6 +11,11 @@ class SignUp extends StatefulWidget {
 
 class _SignUpState extends State<SignUp> {
   final _formKey = GlobalKey<FormState>(); // can validate each form at once
+  final _forenameController = TextEditingController();
+  final _surnameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -33,6 +38,7 @@ class _SignUpState extends State<SignUp> {
                   top: 50.0,
                 ),
                 child: TextFormField(
+                  controller: _forenameController,
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Forename',
@@ -43,6 +49,7 @@ class _SignUpState extends State<SignUp> {
               Padding(
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
+                  controller: _surnameController,
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Surname',
@@ -53,6 +60,7 @@ class _SignUpState extends State<SignUp> {
               Padding(
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
+                  controller: _emailController,
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Email',
@@ -63,6 +71,7 @@ class _SignUpState extends State<SignUp> {
               Padding(
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
+                  controller: _passwordController,
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Password',
@@ -73,7 +82,18 @@ class _SignUpState extends State<SignUp> {
               Padding(
                 padding: EdgeInsets.all(17.0),
                 child: OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () {
+                    createAlbum(
+                      _forenameController.text,
+                      _surnameController.text,
+                      _emailController.text,
+                      _passwordController.text,
+                    );
+                    _forenameController.clear();
+                    _surnameController.clear();
+                    _emailController.clear();
+                    _passwordController.clear();
+                  },
                   style: OutlinedButton.styleFrom(
                     minimumSize: (Size(45, 50)),
                     side: BorderSide(width: 5.0),
