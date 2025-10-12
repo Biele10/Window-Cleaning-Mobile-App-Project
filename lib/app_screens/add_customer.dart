@@ -125,12 +125,12 @@ class _AddCustomerState extends State<AddCustomer> {
                         createAlbum(
                           // retrieves all text data inputted
                           // from user
-                          _nameController.text,
-                          _addressController.text,
-                          _regularityController.text,
-                          _emailController.text,
-                          _phoneController.text,
-                          _additionalinfoController.text,
+                          _nameController.text.trim(),
+                          _addressController.text.trim(),
+                          _regularityController.text.trim(),
+                          _emailController.text.trim(),
+                          _phoneController.text.trim(),
+                          _additionalinfoController.text.trim(),
                         );
                         _nameController
                             .clear(); // clears all text fields so data isn't

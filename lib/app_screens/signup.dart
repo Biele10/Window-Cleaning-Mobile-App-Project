@@ -84,10 +84,11 @@ class _SignUpState extends State<SignUp> {
                 child: OutlinedButton(
                   onPressed: () {
                     createAlbum(
-                      _forenameController.text,
-                      _surnameController.text,
-                      _emailController.text,
-                      _passwordController.text,
+                      // .trim removes whitespace
+                      _emailController.text.trim(),
+                      _passwordController.text.trim(),
+                      _forenameController.text.trim(),
+                      _surnameController.text.trim(),
                     );
                     _forenameController.clear();
                     _surnameController.clear();
@@ -131,10 +132,10 @@ Future<http.Response> createAlbum(
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{
       // encodes all the saved data into json format
-      'Forename': forename,
-      'Surname': surname,
       'Email': email,
       'Password': password,
+      'Forename': forename,
+      'Surname': surname,
     }),
   );
 }

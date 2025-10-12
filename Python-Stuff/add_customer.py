@@ -58,13 +58,37 @@ def get_customers(data):
 def ValidationCheck(details) -> bool:    # returns true or false depending on if name is fine
 
     for info in details:
+        print(type(info))
         if len(info) > 255:         # values cannot exceed length of 255 characters
             return False
     return True
 
 @app.route('/sign_up', methods=['POST'])
-def sign_up(forename : str, surname : str, email : str, password : str):
-    print("nice")
+def sign_up():
+    data = request.get_json()  # extracts information from sign up request
+    forename = data.get('Forename')
+    surname = data.get('Surname')
+    email = data.get('Email')
+    password = data.get('Password')
+
+
+    values = (email, password, forename, surname)        # creates tuple which can be passed into SQL statement
+
+    if ValidationCheck(values):         # if true is returned, sql can proceed
+
+        sign_up_sql_statement = "INSERT INTO Users (Email, Password, Forename, Surname) VALUES (%s, %s, %s, %s)"      
+
+        # prevents SQL as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
+
+        cursor.execute(sign_up_sql_statement, values)       # adds values to database
+
+        database_connect.commit()   # commits the change to the database
+
+        return True
+
+    else:
+
+        return jsonify({"message": "Fields can only be a maximum of 255 characters."}), 401
 
 
 
