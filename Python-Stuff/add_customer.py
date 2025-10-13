@@ -58,7 +58,6 @@ def get_customers(data):
 def ValidationCheck(details) -> bool:    # returns true or false depending on if name is fine
 
     for info in details:
-        print(type(info))
         if len(info) > 255:         # values cannot exceed length of 255 characters
             return False
     return True
@@ -84,11 +83,11 @@ def sign_up():
 
         database_connect.commit()   # commits the change to the database
 
-        return True
+        return jsonify({"message": "You have signed up successfully.", "success":True}), 200     # python sends back json which gives message to display, and whether operation worked or not
 
     else:
 
-        return jsonify({"message": "Fields can only be a maximum of 255 characters."}), 401
+        return jsonify({"message": "Fields can only be a maximum of 255 characters.", "success" : False}), 400  
 
 
 

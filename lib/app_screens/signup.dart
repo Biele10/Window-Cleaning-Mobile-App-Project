@@ -126,7 +126,7 @@ Future<http.Response> createAlbum(
   String email,
   String password,
 ) {
-  return http.post(
+  final response = http.post(
     Uri.parse('http://192.168.7.150:5000/sign_up'), // url of server to send
     // data to
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
@@ -138,6 +138,12 @@ Future<http.Response> createAlbum(
       'Surname': surname,
     }),
   );
+
+  if (response.statusCode == 200) {
+    // response is positive
+
+    final data = jsonDecode(response.body); // data is decoded from json format
+  }
 }
 
 // List<String> hash_password(String password) {
