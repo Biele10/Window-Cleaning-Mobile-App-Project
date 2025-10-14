@@ -140,6 +140,7 @@ Future<http.Response> createAlbum(
   );
 
   if (response.statusCode == 200) {
+    // just leetcode and neetcode today lol
     // response is positive
 
     final data = jsonDecode(response.body); // data is decoded from json format
