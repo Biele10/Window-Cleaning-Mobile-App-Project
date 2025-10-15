@@ -126,6 +126,7 @@ Future<http.Response> createAlbum(
   String email,
   String password,
 ) {
+  // diasjduijasjdsad
   final response = http.post(
     Uri.parse('http://192.168.7.150:5000/sign_up'), // url of server to send
     // data to
@@ -140,7 +141,6 @@ Future<http.Response> createAlbum(
   );
 
   if (response.statusCode == 200) {
-    // just leetcode and neetcode today lol
     // response is positive
 
     final data = jsonDecode(response.body); // data is decoded from json format
