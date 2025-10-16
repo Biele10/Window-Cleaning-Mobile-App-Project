@@ -125,9 +125,13 @@ Future<http.Response> createAlbum(
   String surname,
   String email,
   String password,
-) {
-  // diasjduijasjdsad
-  final response = http.post(
+) async {
+  final http.Response response = await http.post(
+    /* http post only returns a
+  Future<http.Response>, so when i try to assign this variable to just a
+  http.Response class, it doesn't work as the types don't match, therefore
+  the key word 'await' is used, this says to the 'response' variable to wait
+  for the Future to finish, and once it has a http.Response is produced. */
     Uri.parse('http://192.168.7.150:5000/sign_up'), // url of server to send
     // data to
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
