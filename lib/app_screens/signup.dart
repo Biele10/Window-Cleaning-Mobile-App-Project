@@ -85,15 +85,11 @@ class _SignUpState extends State<SignUp> {
                   onPressed: () {
                     createAlbum(
                       // .trim removes whitespace
-                      _emailController.text.trim(),
-                      _passwordController.text.trim(),
-                      _forenameController.text.trim(),
-                      _surnameController.text.trim(),
+                      _emailController,
+                      _passwordController,
+                      _forenameController,
+                      _surnameController,
                     );
-                    _forenameController.clear();
-                    _surnameController.clear();
-                    _emailController.clear();
-                    _passwordController.clear();
                   },
                   style: OutlinedButton.styleFrom(
                     minimumSize: (Size(45, 50)),
@@ -121,10 +117,11 @@ Future<http.Response> createAlbum(
   // function is running
 
   // function that converts user input into json format
-  String forename,
-  String surname,
-  String email,
-  String password,
+  TextEditingController email, // passes the controllers through so they
+  // can be accessed within function
+  TextEditingController password,
+  TextEditingController forename,
+  TextEditingController surname,
 ) async {
   final http.Response response = await http.post(
     /* http post only returns a
@@ -137,17 +134,27 @@ Future<http.Response> createAlbum(
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{
       // encodes all the saved data into json format
-      'Email': email,
-      'Password': password,
-      'Forename': forename,
-      'Surname': surname,
+      'Email': email.text.trim(), // stores the users input in the
+      'Password': password.text.trim(), // json file
+      'Forename': forename.text.trim(),
+      'Surname': surname.text.trim(),
     }),
   );
 
   if (response.statusCode == 200) {
     // response is positive
-
+    forename.clear();
+    surname.clear(); // only clears the fields once the server has
+    // successfully added the user to the database
+    email.clear();
+    password.clear();
     final data = jsonDecode(response.body); // data is decoded from json format
+  } else if (response.statusCode == 400) {
+    final data = jsonDecode(response.body);
+
+    String error_message =
+        data['message']; // extracts the error message from the
+    // decoded json
   }
 }
 

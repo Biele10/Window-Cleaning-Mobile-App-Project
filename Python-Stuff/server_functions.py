@@ -127,7 +127,7 @@ def sign_up():
 
             database_connect.commit()   # commits the change to the database
 
-            return jsonify({"message": "You have signed up successfully.", "success":True}), 200     # python sends back json which gives message to display, and whether operation worked or not
+            return jsonify({"message": "You have signed up successfully."}), 200     # python sends back json which gives message to display, and whether operation worked or not
         
         else:       # email was already found in database
 
