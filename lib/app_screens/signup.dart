@@ -83,13 +83,17 @@ class _SignUpState extends State<SignUp> {
                 padding: EdgeInsets.all(17.0),
                 child: OutlinedButton(
                   onPressed: () {
-                    createAlbum(
-                      // .trim removes whitespace
-                      _emailController,
-                      _passwordController,
-                      _forenameController,
-                      _surnameController,
-                    );
+                    if (mounted) {
+                      // ensures that widget has loaded
+                      createAlbum(
+                        context, // passes through controllers and context
+                        // for the current widget
+                        _emailController,
+                        _passwordController,
+                        _forenameController,
+                        _surnameController,
+                      );
+                    }
                   },
                   style: OutlinedButton.styleFrom(
                     minimumSize: (Size(45, 50)),
@@ -111,6 +115,7 @@ class _SignUpState extends State<SignUp> {
 }
 
 Future<http.Response> createAlbum(
+  BuildContext context,
   // future is a data type that means that
   // the value that is to be returned may not come back instantly so,
   // the operation is asynchronous meaning other operations can run while the
@@ -149,15 +154,26 @@ Future<http.Response> createAlbum(
     email.clear();
     password.clear();
     final data = jsonDecode(response.body); // data is decoded from json format
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Signed up successfully!'), // user signs up
+      ),
+    );
   } else if (response.statusCode == 400) {
     final data = jsonDecode(response.body);
 
-    String error_message =
-        data['message']; // extracts the error message from the
+    String errorMessage = data['message']; // extracts the error message from the
     // decoded json
-  }
-}
 
-// List<String> hash_password(String password) {
-// String hashed_password = BCrypt.hashpw(password, BCrypt.gensalt());
-//}
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        // SnackBar can't be constant because the error message
+        // may change depending on the error
+        // displays the issue the user is having
+        content: Text(errorMessage), // displays error message for user
+      ),
+    );
+  }
+  return response;
+}

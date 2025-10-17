@@ -23,3 +23,5 @@ class InternetCheck {
     return false;
   }
 }
+
+class LoginFunction {}

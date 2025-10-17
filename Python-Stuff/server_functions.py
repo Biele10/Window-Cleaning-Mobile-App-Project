@@ -2,6 +2,7 @@ from flask import Flask, request, jsonify
 from pathlib import Path
 from dotenv import load_dotenv
 import os
+import bcrypt
 import jwt
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -20,6 +21,7 @@ database_connect = mysql.connector.connect(         # establishes connection to 
 )
 
 SECRET_KEY = os.getenv("signature")       # gets the signature for tokens
+PEPPER = os.getenv('pepper')    # gets the pepper for hashing purposes
 
 cursor = database_connect.cursor()   # allows for Python code to execute SQL statements
 
@@ -52,6 +54,13 @@ def generate_refresh_token():
 
     return secrets.token_urlsafe(32)        # returns a random string that equates to a url safe token that is 43 characters in length
 
+def hash_password(password):
+
+    return bcrypt.hashpw((password + PEPPER).encode(), bcrypt.gensalt())        # hashes the password with the pepper and a randomly generated salt
+
+def verify_password(password, stored_hash) -> bool:     # returns True if the password matches the one in the database, false if it doesn't
+
+    return bcrypt.checkpw((password + PEPPER).encode(), stored_hash.encode())       # .encode() converts the string into bytes which is what the hash works with
 
 @app.route('/add_customer', methods=['POST'])
 def add_customer():         # function that stores customer data in database
@@ -103,7 +112,9 @@ def sign_up():
     email = data.get('Email')
     password = data.get('Password')
 
-    values = (email, password, forename, surname)        # creates tuple which can be passed into SQL statement
+    hashed_password = hash_password(password)       # hashes the password entered by the user
+
+    values = (email, hashed_password, forename, surname)        # creates tuple which can be passed into SQL statement
 
     if ValidationCheck(values):         # if true is returned, sql can proceed
 
