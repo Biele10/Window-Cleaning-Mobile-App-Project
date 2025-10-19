@@ -147,6 +147,7 @@ Future<http.Response> createAlbum(
   );
 
   if (response.statusCode == 200) {
+    // status code 200 indicates success
     // response is positive
     forename.clear();
     surname.clear(); // only clears the fields once the server has
@@ -156,11 +157,15 @@ Future<http.Response> createAlbum(
     final data = jsonDecode(response.body); // data is decoded from json format
 
     ScaffoldMessenger.of(context).showSnackBar(
+      // context refers to the previous
+      // widget in the widget tree, for this reason BuildContext context
+      // is passed through as a parameter into this function
       SnackBar(
         content: Text('Signed up successfully!'), // user signs up
       ),
     );
   } else if (response.statusCode == 400) {
+    // status code 400 indicates error
     final data = jsonDecode(response.body);
 
     String errorMessage = data['message']; // extracts the error message from the
