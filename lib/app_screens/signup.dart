@@ -39,6 +39,12 @@ class _SignUpState extends State<SignUp> {
                 ),
                 child: TextFormField(
                   controller: _forenameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your forename.';
+                    }
+                    return null;
+                  },
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Forename',
@@ -50,6 +56,12 @@ class _SignUpState extends State<SignUp> {
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
                   controller: _surnameController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your surname.';
+                    }
+                    return null;
+                  },
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Surname',
@@ -61,6 +73,12 @@ class _SignUpState extends State<SignUp> {
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
                   controller: _emailController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your email.';
+                    }
+                    return null;
+                  },
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Email',
@@ -72,6 +90,12 @@ class _SignUpState extends State<SignUp> {
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
                   controller: _passwordController,
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter your password.';
+                    }
+                    return null;
+                  },
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Password',
@@ -83,8 +107,24 @@ class _SignUpState extends State<SignUp> {
                 padding: EdgeInsets.all(17.0),
                 child: OutlinedButton(
                   onPressed: () {
-                    if (mounted) {
+                    if (!mounted) {
+                      print("ehrehrher");
                       // ensures that widget has loaded
+                      return;
+                    }
+
+                    final formValidate = _formKey.currentState!.validate();
+
+                    if (!formValidate) {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          // small pop up at bottom of screen temporarily
+                          content: Text(
+                            'Please enter all the information for each field.',
+                          ),
+                        ),
+                      );
+                    } else {
                       createAlbum(
                         context, // passes through controllers and context
                         // for the current widget
