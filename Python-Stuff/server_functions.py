@@ -223,6 +223,12 @@ def log_in():
 
             access_token = generate_access_token(user_id)      # func returns a jwt access token
 
+            return jsonify({"access_token": access_token}), 200         # returns the access token as well as a status code
+        
+        return jsonify({"message": "Password was incorrect, please try again."}), 400       # passwords did not match, user not logged in
+
+
+
             
 
             

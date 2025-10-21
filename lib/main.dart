@@ -67,16 +67,29 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
         fontFamily: 'FunnelDisplay',
         textTheme: const TextTheme(
           bodyLarge: TextStyle(color: Colors.black),
-          bodyMedium: TextStyle(color: Colors.black87),
+          bodyMedium: TextStyle(
+            color: Colors.black87,
+            fontSize: 20,
+            fontFamily: 'FunnelDisplay',
+          ),
           titleLarge: TextStyle(color: Colors.red),
         ),
         outlinedButtonTheme: OutlinedButtonThemeData(
           style: OutlinedButton.styleFrom(
             side: const BorderSide(color: Color(0xFF4f4b4c), width: 2.0),
-            shape: RoundedRectangleBorder(
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(8)),
             ),
           ),
+        ),
+
+        inputDecorationTheme: const InputDecorationTheme(
+          hintStyle: TextStyle(
+            color: Colors.white70, // default hint text color
+            fontSize: 20, // default hint text size
+            fontFamily: 'FunnelDisplay', // default hint font
+          ),
+          border: OutlineInputBorder(), // optional default border
         ),
       ),
     );

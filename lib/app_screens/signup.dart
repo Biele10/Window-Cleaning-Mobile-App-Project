@@ -21,7 +21,13 @@ class _SignUpState extends State<SignUp> {
     return Scaffold(
       backgroundColor: Color(0xFF37454a),
       appBar: AppBar(
-        title: Text('Sign Up', style: TextStyle(color: Color(0xFF000000))),
+        title: Text(
+          'Sign Up',
+          style: TextStyle(
+            color: Color(0xFF000000),
+            fontFamily: 'FunnelDisplay',
+          ),
+        ),
       ),
       body: SingleChildScrollView(
         // if screen is too small, user can scroll
@@ -48,7 +54,11 @@ class _SignUpState extends State<SignUp> {
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Forename',
-                    hintStyle: TextStyle(color: Color(0xFFffffff)),
+                    hintStyle: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 20,
+                      fontFamily: 'FunnelDisplay',
+                    ),
                   ),
                 ),
               ),
@@ -65,7 +75,11 @@ class _SignUpState extends State<SignUp> {
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Surname',
-                    hintStyle: TextStyle(color: Color(0xFFffffff)),
+                    hintStyle: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 20,
+                      fontFamily: 'FunnelDisplay',
+                    ),
                   ),
                 ),
               ),
@@ -75,14 +89,18 @@ class _SignUpState extends State<SignUp> {
                   controller: _emailController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email.';
+                      return 'Please enter your email address.';
                     }
                     return null;
                   },
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Email',
-                    hintStyle: TextStyle(color: Color(0xFFffffff)),
+                    hintStyle: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 20,
+                      fontFamily: 'FunnelDisplay',
+                    ),
                   ),
                 ),
               ),
@@ -99,7 +117,11 @@ class _SignUpState extends State<SignUp> {
                   style: TextStyle(color: Color(0xFFffffff)),
                   decoration: const InputDecoration(
                     hintText: 'Password',
-                    hintStyle: TextStyle(color: Color(0xFFffffff)),
+                    hintStyle: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 20,
+                      fontFamily: 'FunnelDisplay',
+                    ),
                   ),
                 ),
               ),
@@ -108,7 +130,6 @@ class _SignUpState extends State<SignUp> {
                 child: OutlinedButton(
                   onPressed: () {
                     if (!mounted) {
-                      print("ehrehrher");
                       // ensures that widget has loaded
                       return;
                     }
@@ -142,7 +163,7 @@ class _SignUpState extends State<SignUp> {
                   ),
                   child: Text(
                     "Submit",
-                    style: TextStyle(color: Color(0xFFffffff)),
+                    style: TextStyle(color: Color(0xFFffffff), fontSize: 20),
                   ),
                 ),
               ),
@@ -189,6 +210,10 @@ Future<http.Response> createAlbum(
   if (response.statusCode == 200) {
     // status code 200 indicates success
     // response is positive
+    String logInEmail = email.text.trim();
+    String logInPassword = password.text.trim();
+    // stores the email and
+    //password  to be passed into the login function
     forename.clear();
     surname.clear(); // only clears the fields once the server has
     // successfully added the user to the database
