@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
+bool _obscurePassword = true;
+
 class SignUp extends StatefulWidget {
   const SignUp({super.key});
   @override
@@ -51,7 +53,11 @@ class _SignUpState extends State<SignUp> {
                     }
                     return null;
                   },
-                  style: TextStyle(color: Color(0xFFffffff)),
+                  style: TextStyle(
+                    color: Color(0xFFffffff),
+                    fontSize: 20,
+                    fontFamily: "FunnelDisplay",
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'Forename',
                     hintStyle: TextStyle(
@@ -72,7 +78,11 @@ class _SignUpState extends State<SignUp> {
                     }
                     return null;
                   },
-                  style: TextStyle(color: Color(0xFFffffff)),
+                  style: TextStyle(
+                    color: Color(0xFFffffff),
+                    fontSize: 20,
+                    fontFamily: 'FunnelDisplay',
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'Surname',
                     hintStyle: TextStyle(
@@ -93,7 +103,11 @@ class _SignUpState extends State<SignUp> {
                     }
                     return null;
                   },
-                  style: TextStyle(color: Color(0xFFffffff)),
+                  style: TextStyle(
+                    color: Color(0xFFffffff),
+                    fontSize: 20,
+                    fontFamily: 'FunnelDisplay',
+                  ),
                   decoration: const InputDecoration(
                     hintText: 'Email',
                     hintStyle: TextStyle(
@@ -107,6 +121,7 @@ class _SignUpState extends State<SignUp> {
               Padding(
                 padding: EdgeInsets.all(40.0),
                 child: TextFormField(
+                  obscureText: _obscurePassword,
                   controller: _passwordController,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
@@ -114,9 +129,26 @@ class _SignUpState extends State<SignUp> {
                     }
                     return null;
                   },
-                  style: TextStyle(color: Color(0xFFffffff)),
-                  decoration: const InputDecoration(
+                  style: TextStyle(
+                    color: Color(0xFFffffff),
+                    fontSize: 20,
+                    fontFamily: 'FunnelDisplay',
+                  ),
+                  decoration: InputDecoration(
                     hintText: 'Password',
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_off
+                            : Icons.visibility,
+                        color: Colors.white,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
                     hintStyle: TextStyle(
                       color: Color(0xFFffffff),
                       fontSize: 20,
@@ -146,7 +178,7 @@ class _SignUpState extends State<SignUp> {
                         ),
                       );
                     } else {
-                      createAlbum(
+                      signUp(
                         context, // passes through controllers and context
                         // for the current widget
                         _emailController,
@@ -175,7 +207,7 @@ class _SignUpState extends State<SignUp> {
   }
 }
 
-Future<http.Response> createAlbum(
+Future<http.Response> signUp(
   BuildContext context,
   // future is a data type that means that
   // the value that is to be returned may not come back instantly so,
@@ -230,7 +262,6 @@ Future<http.Response> createAlbum(
     );
   } else if (response.statusCode == 400) {
     // status code 400 indicates error
-    print('Response body: ${response.body}');
 
     final data = jsonDecode(response.body);
 

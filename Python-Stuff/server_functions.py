@@ -3,6 +3,8 @@ from pathlib import Path
 from dotenv import load_dotenv
 import os
 import bcrypt
+import time
+import hashlib
 import jwt
 import secrets
 from datetime import datetime, timedelta, timezone
@@ -42,6 +44,10 @@ app = Flask(__name__)
 a token is created by the server when the user sends a log in request, the access token will last 30 minutes
 and after that the session will expire and the user will have to reload the app. """
 
+def hash_token(token):
+
+    return hashlib.sha256((token + PEPPER).encode()).hexdigest()       # encodes the token with SHA256 so hashed, but can be checked quickly
+
 def generate_access_token(user_id):     # function to generate an access token
     payload = {                         # creates payload with the UserID and how long the token lasts for
         "user_id": user_id,
@@ -61,9 +67,59 @@ def verify_access_token(token):     # function to verify an access token
         return False, "Invalid token"           # the bool statements will be used by whatever the original function was
                                                 # to determine whether the access token was correct or not
 
+def verify_refresh_token(user_id, token):
+
+    hashed_token = hash_token(token)        # returns the hash of the token
+
+    GET_EXPIRY_STATEMENT = "SELECT Expiry FROM RefreshToken WHERE UserID = %s and Token = %s"
+
+    cursor.execute(GET_EXPIRY_STATEMENT, (user_id, hashed_token))       # fetches current refresh token and expiry for specific device
+
+    values = cursor.fetchone()
+
+    if values:
+
+        expiration_date = values     # assigns result to expiration date
+
+        current_utc_time = datetime.now(timezone.utc)   # gets current time
+
+        if expiration_date < current_utc_time:          # expiration date has been passed
+
+            return False
+        
+        else:       # in order to keep rotating, when an action is carried out, the refresh token is automatically updated
+
+            database_replace_refresh_token(user_id, hashed_token)        # refresh token is updated to current time so user doesn't have to enter log in credentials for another 30 days
+
+            return True         # refresh token was found and is still valid
+
+    else:
+
+        return False        # refresh token or user id did not match / didn't exist
+
 def generate_refresh_token():
 
     return secrets.token_urlsafe(32)        # returns a random string that equates to a url safe token that is 43 characters in length
+                                                     
+def database_replace_refresh_token(user_id, old_token):
+
+    new_token = generate_refresh_token()    # token to be stored in flutter app for user
+
+    hashed_token = hash_token(new_token)       # hashed version stored in database
+
+    new_expiry_date = datetime.now(timezone.utc) + timedelta(days=30)       # creates new expiration date for 30 days
+
+    new_created_at = datetime.now(timezone.utc)
+
+    REPLACE_REFRESH_TOKEN_STATEMENT = "UPDATE RefreshToken SET Token = %s, Expiry = %s, Created_At = %s WHERE UserID = %s and Token = %s" 
+
+    values = (hashed_token, new_expiry_date, new_created_at, user_id, old_token)   
+
+    cursor.execute(REPLACE_REFRESH_TOKEN_STATEMENT, values)
+
+    database_connect.commit()       # refresh token is updated as well as expiration date and created_at time
+
+    return jsonify({'refreshToken': new_token}), 200        # returns plain text refresh token for user to store and then make calls with
 
 def hash_password(password):
 
@@ -167,19 +223,33 @@ def sign_up():
 
         if not email_check:     # if the email is not already in use (false was returned), the user can sign up successfully
 
-            refresh_token = generate_refresh_token()    # generates a refresh token for sign up
+            values = (email, hashed_password, forename, surname)       # remakes values tuple so all data can be inputted together
 
-            expiry_date = datetime.now(timezone.utc) + timedelta(days=30)       # creates expiration date for 30 days, then new refresh token will need to be retrieved
-
-            values = (email, hashed_password, forename, surname, refresh_token, expiry_date)       # remakes values tuple so all data can be inputted together
-
-            SIGN_UP_SQL_STATEMENT = "INSERT INTO Users (Email, Password, Forename, Surname, RefreshToken, Expiry) VALUES (%s, %s, %s, %s, %s, %s)"      
+            SIGN_UP_SQL_STATEMENT = "INSERT INTO Users (Email, Password, Forename, Surname, RefreshToken, Expiry) VALUES (%s, %s, %s, %s,)"      
 
             # prevents SQL injection as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
 
             cursor.execute(SIGN_UP_SQL_STATEMENT, values)       # adds values, refresh token and expiration date of refresh token to database
 
             database_connect.commit()   # commits the change to the database
+
+            time.sleep(0.25)
+
+            user_id = get_user_id(email)
+
+            refresh_token = generate_refresh_token()    # generates a refresh token for sign up
+
+            expiry_date = datetime.now(timezone.utc) + timedelta(days=30)       # creates expiration date for 30 days, then new refresh token will need to be retrieved
+
+            created_at = datetime.now(timezone.utc)
+
+            token_table_values = (user_id, refresh_token, expiry_date, created_at)
+
+            ADD_REFRESH_TOKEN_STATEMENT = "INSERT INTO Refresh_Token (UserID, Token, Expiry, Created_At) VALUES (%s, %s, %s, %s)"
+
+            cursor.execute(ADD_REFRESH_TOKEN_STATEMENT, token_table_values)         # adds values to the RefreshToken table
+
+            database_connect.commit()
 
             return jsonify({"message": "You have signed up successfully."}), 200     # python sends back json which gives message to display, and whether operation worked or not
         
@@ -219,7 +289,19 @@ def log_in():
 
         if check_password:      # passwords match, correct user has been found
 
+            new_refresh_token = generate_refresh_token()    # generates new refresh token
+
+            new_expiry_date = datetime.now(timezone.utc) + timedelta(days=30)   # sets new expiry time
+
             user_id = get_user_id(email)        # fetches the UserID
+
+            UPDATE_REFRESH_TOKEN_STATEMENT = "UPDATE Users SET RefreshToken = %s, Expiry = %s, WHERE UserID = %s"      # sql statement that updates the refresh token and expiration date of it
+
+            update_values = (new_refresh_token, new_expiry_date, user_id)       # creates tuple with 3 values to be passed into the SQL statement
+
+            cursor.execute(UPDATE_REFRESH_TOKEN_STATEMENT, update_values)   # executes the statement
+
+            database_connect.commit()    # commits changes
 
             access_token = generate_access_token(user_id)      # func returns a jwt access token
 
