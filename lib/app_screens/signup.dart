@@ -194,7 +194,6 @@ Future<http.Response> createAlbum(
     // successfully added the user to the database
     email.clear();
     password.clear();
-    final data = jsonDecode(response.body); // data is decoded from json format
 
     ScaffoldMessenger.of(context).showSnackBar(
       // context refers to the previous
@@ -206,6 +205,8 @@ Future<http.Response> createAlbum(
     );
   } else if (response.statusCode == 400) {
     // status code 400 indicates error
+    print('Response body: ${response.body}');
+
     final data = jsonDecode(response.body);
 
     String errorMessage = data['message']; // extracts the error message from the

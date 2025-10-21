@@ -7,7 +7,7 @@ class LogIn extends StatefulWidget {
 }
 
 class _LogInState extends State<LogIn> {
-  bool log_in() {
+  log_in(email, password) {
     /* this will be the function that will be called
   to log the user in, this will of course be used inside this widget but
   will also be called from the sign up widget to automatically log the user in

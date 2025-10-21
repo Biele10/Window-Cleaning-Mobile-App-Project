@@ -10,6 +10,17 @@ import mysql.connector   # imports mysql library in order to connect to database
                 # with its functions
 
 
+"""
+
+FOR REFERENCE, STATUS CODE MEANINGS:
+
+200 - SUCCESS
+400 - ERROR, ERROR MESSAGE IS ATTACHED
+
+"""
+
+
+
 env_path = Path("variables.env")
 load_dotenv(dotenv_path=env_path)       # loads in private variables
 
@@ -62,6 +73,40 @@ def verify_password(password, stored_hash) -> bool:     # returns True if the pa
 
     return bcrypt.checkpw((password + PEPPER).encode(), stored_hash.encode())       # .encode() converts the string into bytes which is what the hash works with
 
+def get_user_id(email):     # retrieves the userid of a user based off of their email
+
+    email_check = verify_email(email)   # func to verify email exists
+
+    if not email_check: # if false, False is returned
+
+        return False
+
+    GET_USER_ID_STATEMENT = "SELECT UserID FROM Users WHERE Email = %s"
+
+    cursor.execute(GET_USER_ID_STATEMENT, (email,))
+
+    result_user_id = cursor.fetchall()      # stores returned UserID
+
+    return result_user_id
+
+def verify_email(email):        # verifies whether the email is in the database or not
+
+    CHECK_FOR_EMAIL_STATEMENT = "SELECT Email FROM Users WHERE Email = %s"      # SQL statement that looks for a particular email in the database
+
+    cursor.execute(CHECK_FOR_EMAIL_STATEMENT, (email,))     # executes the email search statement
+
+    result = cursor.fetchall()     # stores response from database
+    
+    if not result:  # no email was found
+
+        return False
+    
+    else:       # email was found
+
+        return True
+
+
+
 @app.route('/add_customer', methods=['POST'])
 def add_customer():         # function that stores customer data in database
 
@@ -112,29 +157,27 @@ def sign_up():
     email = data.get('Email')
     password = data.get('Password')
 
-    hashed_password = hash_password(password)       # hashes the password entered by the user
-
-    values = (email, hashed_password, forename, surname)        # creates tuple which can be passed into SQL statement
+    values = (email, password, forename, surname)        # creates tuple which can be passed into SQL statement
 
     if ValidationCheck(values):         # if true is returned, sql can proceed
 
-        CHECK_FOR_EMAIL_STATEMENT = "SELECT Email FROM Users WHERE Email = %s"      # SQL statement that looks for a particular email in the database
+        hashed_password = hash_password(password)       # hashes the password entered by the user and stores in hashed password
 
-        cursor.execute(CHECK_FOR_EMAIL_STATEMENT, (email,))     # executes the email search statement
+        email_check = verify_email(email)       # calls a function that verifies whether the email is in the database or not, true if it is, false if it isn't
 
-        email_check = cursor.fetchall()     # stores response from database
-
-        if not email_check:     # if the email is not already in use, the user can sign up successfully
+        if not email_check:     # if the email is not already in use (false was returned), the user can sign up successfully
 
             refresh_token = generate_refresh_token()    # generates a refresh token for sign up
 
             expiry_date = datetime.now(timezone.utc) + timedelta(days=30)       # creates expiration date for 30 days, then new refresh token will need to be retrieved
 
+            values = (email, hashed_password, forename, surname, refresh_token, expiry_date)       # remakes values tuple so all data can be inputted together
+
             SIGN_UP_SQL_STATEMENT = "INSERT INTO Users (Email, Password, Forename, Surname, RefreshToken, Expiry) VALUES (%s, %s, %s, %s, %s, %s)"      
 
-            # prevents SQL as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
+            # prevents SQL injection as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
 
-            cursor.execute(SIGN_UP_SQL_STATEMENT, values + (refresh_token, expiry_date))       # adds values, refresh token and expiration date of refresh token to database
+            cursor.execute(SIGN_UP_SQL_STATEMENT, values)       # adds values, refresh token and expiration date of refresh token to database
 
             database_connect.commit()   # commits the change to the database
 
@@ -142,11 +185,52 @@ def sign_up():
         
         else:       # email was already found in database
 
-            return jsonify({"message: This email is already in use, please use a different email."}), 400       # user unable to sign up and told to enter a different email
+            return jsonify({"message": "This email is already in use, please use a different email."}), 400       # user unable to sign up and told to enter a different email
 
     else:
 
         return jsonify({"message": "Fields can only be a maximum of 255 characters."}), 400  # values failed the validation check meaning
+
+def log_in():
+    data = request.get_json()
+    email = data.get('Email')
+    password = data.get('Password')
+
+    if ValidationCheck((email, password)):      # less than 255 chars
+
+        email_check = verify_email(email)
+
+        if not email_check:
+
+            return jsonify({"message":"This email isn't associated with an account. Please sign up instead."}), 400     # returns a json with an error status code (400)
+                                                                                                                        # email not in database so user might want to sign up instead
+
+        CHECK_STORED_PASSWORD = "SELECT Password FROM Users WHERE Email = %s"
+
+        cursor.execute(CHECK_STORED_PASSWORD, (email,))
+
+        stored_password = cursor.fetchall()
+
+        if not stored_password:
+
+            return jsonify({"message":"Error, email with password not found."}), 400
+
+        check_password = verify_password(password, stored_password)        # function compares both passwords, if both are the same true is returned, else false
+
+        if check_password:      # passwords match, correct user has been found
+
+            user_id = get_user_id(email)        # fetches the UserID
+
+            access_token = generate_access_token(user_id)      # func returns a jwt access token
+
+            
+
+            
+
+
+
+
+
 
 
 
