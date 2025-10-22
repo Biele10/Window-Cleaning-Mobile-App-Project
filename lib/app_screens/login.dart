@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:test2/app_screens/first_screen.dart';
 
 final storage = FlutterSecureStorage(); // creates storage that is secure
 bool _obscurePassword = true;
@@ -136,13 +137,6 @@ class _LogInState extends State<LogIn> {
   }
 }
 
-Future<void> saveAccessToken(String token) async {
-  await storage.write(key: 'access_token', value: token);
-  // stores the access token securely
-}
-
-Future<bool> validateRefresh() {}
-
 Future<http.Response> logIn(
   BuildContext context,
   String email,
@@ -158,14 +152,17 @@ Future<http.Response> logIn(
     }),
   );
 
+  final data = jsonDecode(response.body);
+
   if (response.statusCode == 200) {
     // log in was success
 
-    final data = jsonDecode(response.body);
-
     String accToken = data['access_token'];
+    String refToken = data['refresh_token'];
 
-    String? accessTokenCheck = await storage.read(key: 'refresh_token');
+    String? accessTokenCheck = await storage.read(key: 'access_token');
+
+    String? refreshTokenCheck = await storage.read(key: 'refresh_token');
 
     if (accessTokenCheck == null) {
       // no current access token stored
@@ -173,5 +170,29 @@ Future<http.Response> logIn(
       await storage.write(key: 'access_token', value: accToken);
       // stores the new access token in Flutter Storage
     }
+
+    if (refreshTokenCheck == null) {
+      await storage.write(key: 'refresh_token', value: refToken);
+      // stores new refresh token in Flutter storage
+    }
+
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (context) => FirstScreen()));
+  } else if (response.statusCode == 400) {
+    // error
+
+    String errorMessage = data['message'];
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        // SnackBar can't be constant because the error message
+        // may change depending on the error
+        // displays the issue the user is having
+        content: Text(errorMessage), // displays error message for user
+      ),
+    );
   }
+
+  return response;
 }

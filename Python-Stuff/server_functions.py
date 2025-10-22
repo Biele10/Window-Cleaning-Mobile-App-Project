@@ -225,7 +225,7 @@ def sign_up():
 
             values = (email, hashed_password, forename, surname)       # remakes values tuple so all data can be inputted together
 
-            SIGN_UP_SQL_STATEMENT = "INSERT INTO Users (Email, Password, Forename, Surname, RefreshToken, Expiry) VALUES (%s, %s, %s, %s,)"      
+            SIGN_UP_SQL_STATEMENT = "INSERT INTO Users (Email, Password, Forename, Surname) VALUES (%s, %s, %s, %s)"      
 
             # prevents SQL injection as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
 
@@ -239,11 +239,13 @@ def sign_up():
 
             refresh_token = generate_refresh_token()    # generates a refresh token for sign up
 
+            hashed_refresh_token = hash_token(refresh_token)    # hashes the refresh token for sign up
+
             expiry_date = datetime.now(timezone.utc) + timedelta(days=30)       # creates expiration date for 30 days, then new refresh token will need to be retrieved
 
             created_at = datetime.now(timezone.utc)
 
-            token_table_values = (user_id, refresh_token, expiry_date, created_at)
+            token_table_values = (user_id, hashed_refresh_token, expiry_date, created_at)
 
             ADD_REFRESH_TOKEN_STATEMENT = "INSERT INTO Refresh_Token (UserID, Token, Expiry, Created_At) VALUES (%s, %s, %s, %s)"
 
@@ -251,7 +253,7 @@ def sign_up():
 
             database_connect.commit()
 
-            return jsonify({"message": "You have signed up successfully."}), 200     # python sends back json which gives message to display, and whether operation worked or not
+            return jsonify({"message": "You have signed up successfully.", "refresh_token": refresh_token}), 200     # python sends back json which gives message to display, and whether operation worked or not
         
         else:       # email was already found in database
 
@@ -289,15 +291,19 @@ def log_in():
 
         if check_password:      # passwords match, correct user has been found
 
-            new_refresh_token = generate_refresh_token()    # generates new refresh token
+            new_refresh_token = generate_refresh_token()    # generates new refresh token, plain one is sent back to user
+
+            hashed_new_refresh_token = hash_token(new_refresh_token)       # hashes refresh token for database
 
             new_expiry_date = datetime.now(timezone.utc) + timedelta(days=30)   # sets new expiry time
 
+            new_created_at = datetime.now(timezone.utc)     # gets new current time
+
             user_id = get_user_id(email)        # fetches the UserID
 
-            UPDATE_REFRESH_TOKEN_STATEMENT = "UPDATE Users SET RefreshToken = %s, Expiry = %s, WHERE UserID = %s"      # sql statement that updates the refresh token and expiration date of it
+            UPDATE_REFRESH_TOKEN_STATEMENT = "UPDATE Users SET RefreshToken = %s, Expiry = %s, Created_At = %s, WHERE UserID = %s"      # sql statement that updates the refresh token and expiration date of it
 
-            update_values = (new_refresh_token, new_expiry_date, user_id)       # creates tuple with 3 values to be passed into the SQL statement
+            update_values = (hashed_new_refresh_token, new_expiry_date, new_created_at, user_id)       # creates tuple with 3 values to be passed into the SQL statement
 
             cursor.execute(UPDATE_REFRESH_TOKEN_STATEMENT, update_values)   # executes the statement
 
@@ -305,7 +311,7 @@ def log_in():
 
             access_token = generate_access_token(user_id)      # func returns a jwt access token
 
-            return jsonify({"access_token": access_token}), 200         # returns the access token as well as a status code
+            return jsonify({"access_token": access_token, "refresh_token": new_refresh_token}), 200         # returns the access token, refresh token as well as a status code
         
         return jsonify({"message": "Password was incorrect, please try again."}), 400       # passwords did not match, user not logged in
 
