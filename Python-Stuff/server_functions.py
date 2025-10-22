@@ -97,6 +97,55 @@ def verify_refresh_token(user_id, token):
 
         return False        # refresh token or user id did not match / didn't exist
 
+def add_refresh_token(email):       # inserts new refresh token into database
+
+    user_id = get_user_id(email)
+
+    new_refresh_token = generate_refresh_token()    # generates new refresh token, plain one is sent back to user
+
+    hashed_new_refresh_token = hash_token(new_refresh_token)       # hashes refresh token for database
+
+    new_expiry_date = datetime.now(timezone.utc) + timedelta(days=30)   # sets new expiry time
+
+    new_created_at = datetime.now(timezone.utc)     # gets new current time
+
+    ADD_REFRESH_TOKEN_STATEMENT = "INSERT INTO Refresh_Tokens (UserID, Token, Expiry, Created_At) VALUES (%s, %s, %s, %s)"
+
+    values = (user_id, hashed_new_refresh_token, new_expiry_date, new_created_at)
+
+    cursor.execute(ADD_REFRESH_TOKEN_STATEMENT, values)
+
+    database_connect.commit()
+
+    return new_refresh_token        # returns the unhashed refresh token
+
+def update_refresh_token(email, old_token):     # updates outdated refresh token in database
+
+    user_id = get_user_id(email)
+
+    hashed_old_token = hash_token(old_token)    # gets hash of the old plain text token
+
+    new_refresh_token = generate_refresh_token()    # generates new refresh token, plain one is sent back to user
+
+    hashed_new_refresh_token = hash_token(new_refresh_token)       # hashes refresh token for database
+
+    new_expiry_date = datetime.now(timezone.utc) + timedelta(days=30)   # sets new expiry time
+
+    new_created_at = datetime.now(timezone.utc)     # gets new current time
+
+    UPDATE_REFRESH_TOKEN_STATEMENT = "UPDATE Refresh_Tokens SET Token = %s, Expiry = %s, Created_At = %s WHERE UserID = %s and Token = %s"  
+                                                    
+                                                    # sql statement that updates the refresh token, expiration date and created_at
+
+    values = (hashed_new_refresh_token, new_expiry_date, new_created_at, user_id, hashed_old_token)
+
+    cursor.execute(UPDATE_REFRESH_TOKEN_STATEMENT, values)
+
+    database_connect.commit()
+
+    return new_refresh_token        # returns plain refresh token
+
+
 def generate_refresh_token():
 
     return secrets.token_urlsafe(32)        # returns a random string that equates to a url safe token that is 43 characters in length
@@ -141,9 +190,9 @@ def get_user_id(email):     # retrieves the userid of a user based off of their 
 
     cursor.execute(GET_USER_ID_STATEMENT, (email,))
 
-    result_user_id = cursor.fetchall()      # stores returned UserID
+    result_user_id = cursor.fetchone()      # stores returned UserID
 
-    return result_user_id
+    return result_user_id[0]        # returns the string value of the user id
 
 def verify_email(email):        # verifies whether the email is in the database or not
 
@@ -151,15 +200,11 @@ def verify_email(email):        # verifies whether the email is in the database 
 
     cursor.execute(CHECK_FOR_EMAIL_STATEMENT, (email,))     # executes the email search statement
 
-    result = cursor.fetchall()     # stores response from database
+    result = cursor.fetchone()     # stores response from database
     
-    if not result:  # no email was found
+    print(result)
 
-        return False
-    
-    else:       # email was found
-
-        return True
+    return bool(result)     # if exists, true returned, if doesnt exist false is returned
 
 
 
@@ -221,7 +266,9 @@ def sign_up():
 
         email_check = verify_email(email)       # calls a function that verifies whether the email is in the database or not, true if it is, false if it isn't
 
-        if not email_check:     # if the email is not already in use (false was returned), the user can sign up successfully
+        print(email_check)
+
+        if email_check is False:     # if the email is not already in use (false was returned), the user can sign up successfully
 
             values = (email, hashed_password, forename, surname)       # remakes values tuple so all data can be inputted together
 
@@ -235,25 +282,9 @@ def sign_up():
 
             time.sleep(0.25)
 
-            user_id = get_user_id(email)
+            plain_refresh_token = add_refresh_token(email)      # adds new refresh token into database and returns plain text refresh token to send to user
 
-            refresh_token = generate_refresh_token()    # generates a refresh token for sign up
-
-            hashed_refresh_token = hash_token(refresh_token)    # hashes the refresh token for sign up
-
-            expiry_date = datetime.now(timezone.utc) + timedelta(days=30)       # creates expiration date for 30 days, then new refresh token will need to be retrieved
-
-            created_at = datetime.now(timezone.utc)
-
-            token_table_values = (user_id, hashed_refresh_token, expiry_date, created_at)
-
-            ADD_REFRESH_TOKEN_STATEMENT = "INSERT INTO Refresh_Token (UserID, Token, Expiry, Created_At) VALUES (%s, %s, %s, %s)"
-
-            cursor.execute(ADD_REFRESH_TOKEN_STATEMENT, token_table_values)         # adds values to the RefreshToken table
-
-            database_connect.commit()
-
-            return jsonify({"message": "You have signed up successfully.", "refresh_token": refresh_token}), 200     # python sends back json which gives message to display, and whether operation worked or not
+            return jsonify({"message": "You have signed up successfully.", "refresh_token": plain_refresh_token}), 200     # python sends back json which gives message to display, and whether operation worked or not
         
         else:       # email was already found in database
 
@@ -267,6 +298,7 @@ def log_in():
     data = request.get_json()
     email = data.get('Email')
     password = data.get('Password')
+    current_refresh_token = data.get('RefreshToken')
 
     if ValidationCheck((email, password)):      # less than 255 chars
 
@@ -291,27 +323,20 @@ def log_in():
 
         if check_password:      # passwords match, correct user has been found
 
-            new_refresh_token = generate_refresh_token()    # generates new refresh token, plain one is sent back to user
+            user_id = get_user_id(email)
 
-            hashed_new_refresh_token = hash_token(new_refresh_token)       # hashes refresh token for database
+            if current_refresh_token is None:       # user is logging in from different device, so new refresh token needs to be issued
 
-            new_expiry_date = datetime.now(timezone.utc) + timedelta(days=30)   # sets new expiry time
+                plain_refresh_token = add_refresh_token(email)
 
-            new_created_at = datetime.now(timezone.utc)     # gets new current time
+            else:       # user has logged in before on device, just needs to update refresh token
 
-            user_id = get_user_id(email)        # fetches the UserID
+                plain_refresh_token = update_refresh_token(email, current_refresh_token)
 
-            UPDATE_REFRESH_TOKEN_STATEMENT = "UPDATE Users SET RefreshToken = %s, Expiry = %s, Created_At = %s, WHERE UserID = %s"      # sql statement that updates the refresh token and expiration date of it
-
-            update_values = (hashed_new_refresh_token, new_expiry_date, new_created_at, user_id)       # creates tuple with 3 values to be passed into the SQL statement
-
-            cursor.execute(UPDATE_REFRESH_TOKEN_STATEMENT, update_values)   # executes the statement
-
-            database_connect.commit()    # commits changes
 
             access_token = generate_access_token(user_id)      # func returns a jwt access token
 
-            return jsonify({"access_token": access_token, "refresh_token": new_refresh_token}), 200         # returns the access token, refresh token as well as a status code
+            return jsonify({"access_token": access_token, "refresh_token": plain_refresh_token}), 200         # returns the access token, refresh token as well as a status code
         
         return jsonify({"message": "Password was incorrect, please try again."}), 400       # passwords did not match, user not logged in
 

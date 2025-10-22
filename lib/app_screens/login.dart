@@ -110,6 +110,13 @@ class _LogInState extends State<LogIn> {
                   padding: EdgeInsets.all(17.0),
                   child: OutlinedButton(
                     onPressed: () {
+                      String? refreshTokenCheck;
+                      final storage = FlutterSecureStorage();
+
+                      storage.read(key: 'refresh_token').then((value) {
+                        refreshTokenCheck = value;
+                      });
+
                       // log in passes build context, text in email and password
                       logIn(
                         context,
@@ -141,14 +148,16 @@ Future<http.Response> logIn(
   BuildContext context,
   String email,
   String password,
+  String? currentRefreshToken,
 ) async {
   final http.Response response = await http.post(
     Uri.parse('http://192.168.7.150:5000/log_in'),
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
-    body: jsonEncode(<String, String>{
+    body: jsonEncode(<String?, String?>{
       // encodes all the saved data into json format
       'Email': email, // stores the users input in the
       'Password': password, // json file
+      'RefreshToken': currentRefreshToken,
     }),
   );
 
