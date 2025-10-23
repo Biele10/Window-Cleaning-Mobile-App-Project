@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 bool _obscurePassword = true;
@@ -239,6 +240,8 @@ Future<http.Response> signUp(
     }),
   );
 
+  final data = jsonDecode(response.body);
+
   if (response.statusCode == 200) {
     // status code 200 indicates success
     // response is positive
@@ -252,6 +255,12 @@ Future<http.Response> signUp(
     email.clear();
     password.clear();
 
+    final storage = FlutterSecureStorage();
+
+    String newRefToken = data['refresh_token'];
+
+    await storage.write(key: 'refresh_token', value: newRefToken);
+
     ScaffoldMessenger.of(context).showSnackBar(
       // context refers to the previous
       // widget in the widget tree, for this reason BuildContext context
@@ -262,8 +271,6 @@ Future<http.Response> signUp(
     );
   } else if (response.statusCode == 400) {
     // status code 400 indicates error
-
-    final data = jsonDecode(response.body);
 
     String errorMessage = data['message']; // extracts the error message from the
     // decoded json

@@ -109,19 +109,18 @@ class _LogInState extends State<LogIn> {
                 Padding(
                   padding: EdgeInsets.all(17.0),
                   child: OutlinedButton(
-                    onPressed: () {
-                      String? refreshTokenCheck;
+                    onPressed: () async {
                       final storage = FlutterSecureStorage();
-
-                      storage.read(key: 'refresh_token').then((value) {
-                        refreshTokenCheck = value;
-                      });
+                      String? refreshTokenCheck = await storage.read(
+                        key: 'refresh_token',
+                      );
 
                       // log in passes build context, text in email and password
                       logIn(
                         context,
                         _emailController.text.trim(),
                         _passwordController.text.trim(),
+                        refreshTokenCheck,
                       );
                     },
                     style: OutlinedButton.styleFrom(
@@ -150,10 +149,11 @@ Future<http.Response> logIn(
   String password,
   String? currentRefreshToken,
 ) async {
+  print(currentRefreshToken);
   final http.Response response = await http.post(
     Uri.parse('http://192.168.7.150:5000/log_in'),
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
-    body: jsonEncode(<String?, String?>{
+    body: jsonEncode(<String, dynamic>{
       // encodes all the saved data into json format
       'Email': email, // stores the users input in the
       'Password': password, // json file
@@ -169,25 +169,18 @@ Future<http.Response> logIn(
     String accToken = data['access_token'];
     String refToken = data['refresh_token'];
 
-    String? accessTokenCheck = await storage.read(key: 'access_token');
+    await storage.write(key: 'access_token', value: accToken);
+    // stores the new access token in Flutter Storage
 
-    String? refreshTokenCheck = await storage.read(key: 'refresh_token');
+    await storage.write(key: 'refresh_token', value: refToken);
 
-    if (accessTokenCheck == null) {
-      // no current access token stored
+    // stores new refresh token in Flutter storage
 
-      await storage.write(key: 'access_token', value: accToken);
-      // stores the new access token in Flutter Storage
-    }
-
-    if (refreshTokenCheck == null) {
-      await storage.write(key: 'refresh_token', value: refToken);
-      // stores new refresh token in Flutter storage
-    }
-
-    Navigator.of(
-      context,
-    ).pushReplacement(MaterialPageRoute(builder: (context) => FirstScreen()));
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (context) => FirstScreen()),
+      (Route<dynamic> route) => false, // clears all previous screens so
+      // user can't return to account screen after logging in
+    );
   } else if (response.statusCode == 400) {
     // error
 

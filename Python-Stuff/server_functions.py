@@ -67,9 +67,9 @@ def verify_access_token(token):     # function to verify an access token
         return False, "Invalid token"           # the bool statements will be used by whatever the original function was
                                                 # to determine whether the access token was correct or not
 
-def verify_refresh_token(user_id, token):
+def verify_refresh_token(user_id, old_token):
 
-    hashed_token = hash_token(token)        # returns the hash of the token
+    hashed_token = hash_token(old_token)        # returns the hash of the token
 
     GET_EXPIRY_STATEMENT = "SELECT Expiry FROM RefreshToken WHERE UserID = %s and Token = %s"
 
@@ -89,7 +89,7 @@ def verify_refresh_token(user_id, token):
         
         else:       # in order to keep rotating, when an action is carried out, the refresh token is automatically updated
 
-            database_replace_refresh_token(user_id, hashed_token)        # refresh token is updated to current time so user doesn't have to enter log in credentials for another 30 days
+            update_refresh_token(user_id, old_token)        # refresh token is updated to current time so user doesn't have to enter log in credentials for another 30 days
 
             return True         # refresh token was found and is still valid
 
@@ -149,27 +149,7 @@ def update_refresh_token(email, old_token):     # updates outdated refresh token
 def generate_refresh_token():
 
     return secrets.token_urlsafe(32)        # returns a random string that equates to a url safe token that is 43 characters in length
-                                                     
-def database_replace_refresh_token(user_id, old_token):
-
-    new_token = generate_refresh_token()    # token to be stored in flutter app for user
-
-    hashed_token = hash_token(new_token)       # hashed version stored in database
-
-    new_expiry_date = datetime.now(timezone.utc) + timedelta(days=30)       # creates new expiration date for 30 days
-
-    new_created_at = datetime.now(timezone.utc)
-
-    REPLACE_REFRESH_TOKEN_STATEMENT = "UPDATE RefreshToken SET Token = %s, Expiry = %s, Created_At = %s WHERE UserID = %s and Token = %s" 
-
-    values = (hashed_token, new_expiry_date, new_created_at, user_id, old_token)   
-
-    cursor.execute(REPLACE_REFRESH_TOKEN_STATEMENT, values)
-
-    database_connect.commit()       # refresh token is updated as well as expiration date and created_at time
-
-    return jsonify({'refreshToken': new_token}), 200        # returns plain text refresh token for user to store and then make calls with
-
+                                                    
 def hash_password(password):
 
     return bcrypt.hashpw((password + PEPPER).encode(), bcrypt.gensalt())        # hashes the password with the pepper and a randomly generated salt
@@ -202,8 +182,6 @@ def verify_email(email):        # verifies whether the email is in the database 
 
     result = cursor.fetchone()     # stores response from database
     
-    print(result)
-
     return bool(result)     # if exists, true returned, if doesnt exist false is returned
 
 
@@ -266,8 +244,6 @@ def sign_up():
 
         email_check = verify_email(email)       # calls a function that verifies whether the email is in the database or not, true if it is, false if it isn't
 
-        print(email_check)
-
         if email_check is False:     # if the email is not already in use (false was returned), the user can sign up successfully
 
             values = (email, hashed_password, forename, surname)       # remakes values tuple so all data can be inputted together
@@ -293,7 +269,8 @@ def sign_up():
     else:
 
         return jsonify({"message": "Fields can only be a maximum of 255 characters."}), 400  # values failed the validation check meaning
-
+    
+@app.route('/log_in', methods=['POST'])
 def log_in():
     data = request.get_json()
     email = data.get('Email')
@@ -306,14 +283,14 @@ def log_in():
 
         if not email_check:
 
-            return jsonify({"message":"This email isn't associated with an account. Please sign up instead."}), 400     # returns a json with an error status code (400)
+            return jsonify({"message":"Account with this email does not exist."}), 400     # returns a json with an error status code (400)
                                                                                                                         # email not in database so user might want to sign up instead
 
         CHECK_STORED_PASSWORD = "SELECT Password FROM Users WHERE Email = %s"
 
         cursor.execute(CHECK_STORED_PASSWORD, (email,))
 
-        stored_password = cursor.fetchall()
+        stored_password = cursor.fetchone()[0]
 
         if not stored_password:
 
