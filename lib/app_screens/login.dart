@@ -149,7 +149,6 @@ Future<http.Response> logIn(
   String password,
   String? currentRefreshToken,
 ) async {
-  print(currentRefreshToken);
   final http.Response response = await http.post(
     Uri.parse('http://192.168.7.150:5000/log_in'),
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
@@ -165,16 +164,16 @@ Future<http.Response> logIn(
 
   if (response.statusCode == 200) {
     // log in was success
-
+    print("we are here");
     String accToken = data['access_token'];
     String refToken = data['refresh_token'];
+    String userID = data['user_id'];
 
     await storage.write(key: 'access_token', value: accToken);
-    // stores the new access token in Flutter Storage
 
     await storage.write(key: 'refresh_token', value: refToken);
 
-    // stores new refresh token in Flutter storage
+    await storage.write(key: 'user_id', value: userID);
 
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (context) => FirstScreen()),

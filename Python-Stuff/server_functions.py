@@ -47,15 +47,35 @@ and after that the session will expire and the user will have to reload the app.
 def hash_token(token):
 
     return hashlib.sha256((token + PEPPER).encode()).hexdigest()       # encodes the token with SHA256 so hashed, but can be checked quickly
+@app.route('/generate_access_token', methods=['POST'])
+def generate_access_token(user_id = None):     # function to generate an access token
 
-def generate_access_token(user_id):     # function to generate an access token
+    cur_user_id = user_id
+    
+    if cur_user_id is None:
+
+        data = request.get_json()
+
+        user_id = data.get('UserID')
+
+        if user_id is None:
+            
+            return jsonify({}), 400
+
     payload = {                         # creates payload with the UserID and how long the token lasts for
         "user_id": user_id,
         "exp": datetime.now(timezone.utc) + timedelta(minutes=30)  # lasts 30 mins, measures time in UTC so that local time doesn't mess up processing
     }
     token = jwt.encode(payload, SECRET_KEY, algorithm="HS256")     # adds payload and secret signature as well as algorithm to hash the file
-                                                                   # when it arrives, this will check that the original reuest sent is the same as the one recieved     
-    return token        # returns the access token for the user to use for their session
+                                                                   # when it arrives, this will check that the original reuest sent is the same as the one recieved
+
+    if cur_user_id is None:     # return statement for flutter call for new access token
+
+        return jsonify({"access_token": token}), 200        # returns the access token for the user to use for their session
+    
+    else:       # return statement for python function
+
+        return token
 
 def verify_access_token(token):     # function to verify an access token
     try:        # try and except statements are used because jwt returns particular errors rather than just a true or false
@@ -67,11 +87,18 @@ def verify_access_token(token):     # function to verify an access token
         return False, "Invalid token"           # the bool statements will be used by whatever the original function was
                                                 # to determine whether the access token was correct or not
 
-def verify_refresh_token(user_id, old_token):
+
+@app.route('/verify_refresh_token', methods =['POST'])
+def verify_refresh_token():
+    
+    data = request.get_json()
+
+    user_id = data.get('UserID')
+    old_token = data.get('RefreshToken')
 
     hashed_token = hash_token(old_token)        # returns the hash of the token
 
-    GET_EXPIRY_STATEMENT = "SELECT Expiry FROM RefreshToken WHERE UserID = %s and Token = %s"
+    GET_EXPIRY_STATEMENT = "SELECT Expiry FROM Refresh_Tokens WHERE UserID = %s and Token = %s"
 
     cursor.execute(GET_EXPIRY_STATEMENT, (user_id, hashed_token))       # fetches current refresh token and expiry for specific device
 
@@ -79,23 +106,26 @@ def verify_refresh_token(user_id, old_token):
 
     if values:
 
-        expiration_date = values     # assigns result to expiration date
+        expiration_date = values[0]     # assigns result to expiration date
 
         current_utc_time = datetime.now(timezone.utc)   # gets current time
 
+        if expiration_date.tzinfo is None:      # tell Python that this datetime variable is UTC
+            expiration_date = expiration_date.replace(tzinfo=timezone.utc)
+
         if expiration_date < current_utc_time:          # expiration date has been passed
 
-            return False
+            return jsonify({}), 400
         
-        else:       # in order to keep rotating, when an action is carried out, the refresh token is automatically updated
+        else:       # in order to keep rotating, when the refresh token is verified, it is automatically updated
 
-            update_refresh_token(user_id, old_token)        # refresh token is updated to current time so user doesn't have to enter log in credentials for another 30 days
+            new_plain_refresh_token = update_refresh_token(user_id, old_token)        # refresh token is updated to current time so user doesn't have to enter log in credentials for another 30 days
 
-            return True         # refresh token was found and is still valid
+            return jsonify({"refresh_token": new_plain_refresh_token}), 200   
 
     else:
 
-        return False        # refresh token or user id did not match / didn't exist
+        return jsonify({}), 400        # refresh token or user id did not match / didn't exist
 
 def add_refresh_token(email):       # inserts new refresh token into database
 
@@ -310,10 +340,11 @@ def log_in():
 
                 plain_refresh_token = update_refresh_token(email, current_refresh_token)
 
-
             access_token = generate_access_token(user_id)      # func returns a jwt access token
 
-            return jsonify({"access_token": access_token, "refresh_token": plain_refresh_token}), 200         # returns the access token, refresh token as well as a status code
+            user_id = str(user_id)
+
+            return jsonify({"access_token": access_token, "refresh_token": plain_refresh_token, "user_id": user_id}), 200         # returns the access token, refresh token as well as a status code
         
         return jsonify({"message": "Password was incorrect, please try again."}), 400       # passwords did not match, user not logged in
 
