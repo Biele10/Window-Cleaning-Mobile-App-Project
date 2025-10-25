@@ -38,21 +38,49 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
       connectivityStatus = connectionResult;
     });
 
+    final storage = FlutterSecureStorage();
+    String? accTokenCheck = await storage.read(key: 'access_token');
+    String? refreshTokenCheck = await storage.read(key: 'refresh_token');
+    bool isAccessTokenExpired(String? token) {
+      // decodes jwt
+
+      if (token == null || token.isEmpty) {
+        return true;
+      }
+      try {
+        final parts = token.split('.');
+        if (parts.length != 3) return true;
+
+        final payload = jsonDecode(
+          utf8.decode(base64Url.decode(base64Url.normalize(parts[1]))),
+        );
+
+        final exp = payload['exp'];
+        final now = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+
+        return exp < now;
+      } catch (_) {
+        return true; // if decode fails, treat as expired
+      }
+    }
+
     Future<bool> verifyRefreshToken() async {
       print("this func was called lmao");
-      final storage = FlutterSecureStorage();
-      String? refToken = await storage.read(key: 'refresh_token');
+
       String? userID = await storage.read(key: 'user_id');
 
+      print(refreshTokenCheck);
+      print(userID);
+
       final http.Response response = await http.post(
-        Uri.parse('http://192.168.7.150:5000/verify_refresh_token'),
+        Uri.parse('http://192.168.1.231:5000/verify_refresh_token'),
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
         body: jsonEncode(<String, String?>{
           // encodes all the saved data into json format
           'UserID': userID,
-          'RefreshToken': refToken,
+          'RefreshToken': refreshTokenCheck,
         }),
       );
 
@@ -65,7 +93,7 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
         await storage.write(key: 'refresh_token', value: newRefToken);
 
         final http.Response accessResponse = await http.post(
-          Uri.parse('http://192.168.7.150:5000/generate_access_token'),
+          Uri.parse('http://192.168.1.231:5000/generate_access_token'),
           headers: <String, String>{
             'Content-Type': 'application/json; charset=UTF-8',
           },
@@ -109,17 +137,22 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
         ),
       );
     } else if (connectionResult && mounted) {
-      print("here");
-      if (await verifyRefreshToken()) {
-        // user has signed in previously
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => FirstScreen()),
-        );
+      if (accTokenCheck == null || isAccessTokenExpired(accTokenCheck)) {
+        if (await verifyRefreshToken()) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => FirstScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => AccountPage()),
+          );
+        }
       } else {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => AccountPage()),
+          MaterialPageRoute(builder: (context) => FirstScreen()),
         );
       }
     }

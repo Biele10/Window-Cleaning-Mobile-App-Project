@@ -173,7 +173,7 @@ Future<http.Response> createAlbum(
   String addInfo,
 ) {
   return http.post(
-    Uri.parse('http://192.168.7.150:5000/add_customer'), // url of server to send
+    Uri.parse('http://192.168.1.231:5000/add_customer'), // url of server to send
     // data to
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{

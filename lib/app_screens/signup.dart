@@ -228,7 +228,7 @@ Future<http.Response> signUp(
   http.Response class, it doesn't work as the types don't match, therefore
   the key word 'await' is used, this says to the 'response' variable to wait
   for the Future to finish, and once it has a http.Response is produced. */
-    Uri.parse('http://192.168.7.150:5000/sign_up'), // url of server to send
+    Uri.parse('http://192.168.1.231:5000/sign_up'), // url of server to send
     // data to
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{

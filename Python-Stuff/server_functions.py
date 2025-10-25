@@ -96,6 +96,10 @@ def verify_refresh_token():
     user_id = data.get('UserID')
     old_token = data.get('RefreshToken')
 
+    if old_token is None:
+
+        return jsonify({}), 400
+
     hashed_token = hash_token(old_token)        # returns the hash of the token
 
     GET_EXPIRY_STATEMENT = "SELECT Expiry FROM Refresh_Tokens WHERE UserID = %s and Token = %s"
@@ -117,11 +121,9 @@ def verify_refresh_token():
 
             return jsonify({}), 400
         
-        else:       # in order to keep rotating, when the refresh token is verified, it is automatically updated
+        else:      
 
-            new_plain_refresh_token = update_refresh_token(user_id, old_token)        # refresh token is updated to current time so user doesn't have to enter log in credentials for another 30 days
-
-            return jsonify({"refresh_token": new_plain_refresh_token}), 200   
+            return jsonify({}), 200   
 
     else:
 
@@ -140,6 +142,8 @@ def add_refresh_token(email):       # inserts new refresh token into database
     new_created_at = datetime.now(timezone.utc)     # gets new current time
 
     ADD_REFRESH_TOKEN_STATEMENT = "INSERT INTO Refresh_Tokens (UserID, Token, Expiry, Created_At) VALUES (%s, %s, %s, %s)"
+
+    print("we even doing this?")
 
     values = (user_id, hashed_new_refresh_token, new_expiry_date, new_created_at)
 
@@ -172,6 +176,8 @@ def update_refresh_token(email, old_token):     # updates outdated refresh token
     cursor.execute(UPDATE_REFRESH_TOKEN_STATEMENT, values)
 
     database_connect.commit()
+
+    print(hashed_new_refresh_token, "yay")
 
     return new_refresh_token        # returns plain refresh token
 
@@ -333,6 +339,8 @@ def log_in():
             user_id = get_user_id(email)
 
             if current_refresh_token is None:       # user is logging in from different device, so new refresh token needs to be issued
+
+                print(current_refresh_token, "this shouldnt be here")
 
                 plain_refresh_token = add_refresh_token(email)
 

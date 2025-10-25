@@ -150,7 +150,7 @@ Future<http.Response> logIn(
   String? currentRefreshToken,
 ) async {
   final http.Response response = await http.post(
-    Uri.parse('http://192.168.7.150:5000/log_in'),
+    Uri.parse('http://192.168.1.231:5000/log_in'),
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, dynamic>{
       // encodes all the saved data into json format
@@ -164,7 +164,6 @@ Future<http.Response> logIn(
 
   if (response.statusCode == 200) {
     // log in was success
-    print("we are here");
     String accToken = data['access_token'];
     String refToken = data['refresh_token'];
     String userID = data['user_id'];
