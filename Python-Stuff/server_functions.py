@@ -121,17 +121,17 @@ def verify_refresh_token():
 
             return jsonify({}), 400
         
-        else:      
+        else:
 
-            return jsonify({}), 200   
+            new_refresh_token = update_refresh_token(user_id, old_token)      
+
+            return jsonify({"refresh_token": new_refresh_token}), 200   
 
     else:
 
         return jsonify({}), 400        # refresh token or user id did not match / didn't exist
 
-def add_refresh_token(email):       # inserts new refresh token into database
-
-    user_id = get_user_id(email)
+def add_refresh_token(user_id):       # inserts new refresh token into database
 
     new_refresh_token = generate_refresh_token()    # generates new refresh token, plain one is sent back to user
 
@@ -153,9 +153,7 @@ def add_refresh_token(email):       # inserts new refresh token into database
 
     return new_refresh_token        # returns the unhashed refresh token
 
-def update_refresh_token(email, old_token):     # updates outdated refresh token in database
-
-    user_id = get_user_id(email)
+def update_refresh_token(user_id, old_token):     # updates outdated refresh token in database
 
     hashed_old_token = hash_token(old_token)    # gets hash of the old plain text token
 
@@ -294,7 +292,9 @@ def sign_up():
 
             time.sleep(0.25)
 
-            plain_refresh_token = add_refresh_token(email)      # adds new refresh token into database and returns plain text refresh token to send to user
+            user_id = get_user_id(email)
+
+            plain_refresh_token = add_refresh_token(user_id)      # adds new refresh token into database and returns plain text refresh token to send to user
 
             return jsonify({"message": "You have signed up successfully.", "refresh_token": plain_refresh_token}), 200     # python sends back json which gives message to display, and whether operation worked or not
         
@@ -342,11 +342,11 @@ def log_in():
 
                 print(current_refresh_token, "this shouldnt be here")
 
-                plain_refresh_token = add_refresh_token(email)
+                plain_refresh_token = add_refresh_token(user_id)
 
             else:       # user has logged in before on device, just needs to update refresh token
 
-                plain_refresh_token = update_refresh_token(email, current_refresh_token)
+                plain_refresh_token = update_refresh_token(user_id, current_refresh_token)
 
             access_token = generate_access_token(user_id)      # func returns a jwt access token
 
