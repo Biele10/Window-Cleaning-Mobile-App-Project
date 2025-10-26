@@ -18,6 +18,7 @@ FOR REFERENCE, STATUS CODE MEANINGS:
 
 200 - SUCCESS
 400 - ERROR, ERROR MESSAGE IS ATTACHED
+401 - SESSION EXPIRED, NEED TO REFRESH APP
 
 """
 
@@ -143,8 +144,6 @@ def add_refresh_token(user_id):       # inserts new refresh token into database
 
     ADD_REFRESH_TOKEN_STATEMENT = "INSERT INTO Refresh_Tokens (UserID, Token, Expiry, Created_At) VALUES (%s, %s, %s, %s)"
 
-    print("we even doing this?")
-
     values = (user_id, hashed_new_refresh_token, new_expiry_date, new_created_at)
 
     cursor.execute(ADD_REFRESH_TOKEN_STATEMENT, values)
@@ -174,8 +173,6 @@ def update_refresh_token(user_id, old_token):     # updates outdated refresh tok
     cursor.execute(UPDATE_REFRESH_TOKEN_STATEMENT, values)
 
     database_connect.commit()
-
-    print(hashed_new_refresh_token, "yay")
 
     return new_refresh_token        # returns plain refresh token
 
@@ -231,12 +228,20 @@ def add_customer():         # function that stores customer data in database
     email = data.get('Email')
     phone = data.get('Phone')
     add_info = data.get('AddInfo')
+    access_token = data.get('AccToken')
+    user_id = data.get('UserID')        # this is the foreign key that will link each customer to a particular user
 
-    values = (name, address, regularity, email, phone, add_info)        # creates tuple which can be passed into SQL statement
+    acc_tok_validitiy = verify_access_token(access_token)
+
+    if not acc_tok_validitiy:
+
+        return jsonify({"message": "Session has expired."}), 401
+
+    values = (user_id, name, address, regularity, email, phone, add_info)        # creates tuple which can be passed into SQL statement
 
     if ValidationCheck(values):         # if true is returned, sql can proceed
 
-        customer_sql_statement = "INSERT INTO Customers (Name, Address, Regularity, Email, Phone, Additional_Information) VALUES (%s, %s, %s, %s, %s, %s)"      
+        customer_sql_statement = "INSERT INTO Customers (UserID, Name, Address, Regularity, Email, Phone, Additional_Information) VALUES (%s, %s, %s, %s, %s, %s, %s)"      
 
         # prevents SQL as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
 
@@ -251,10 +256,37 @@ def add_customer():         # function that stores customer data in database
 
 
 @app.route('/get_customers', methods=['GET'])
-def get_customers(data):
-    return "nice"
+def get_customers():
+    data = request.get_json()
+    user_id = data.get('UserID')
+    access_token = data.get('AccToken')
 
+    acc_tok_validitiy = verify_access_token(access_token)
 
+    if not acc_tok_validitiy:
+
+        return jsonify({"message": "Session has expired."}), 401
+
+    GET_CUSTOMERS_STATEMENT = "SELECT * Name, CustomerID FROM Customers WHERE UserID = %s"
+
+    cursor.execute(GET_CUSTOMERS_STATEMENT, user_id,)
+
+    database.commit()
+
+    names_and_ids = cursor.fetchall()      # only names are shown, but user will be able to find more information
+                                        # on each customer if needed with their customer id.
+
+    if not names_and_ids:
+
+        return jsonify({"message": "You currently have no customers."}), 400
+
+    customer_list = [{"Name": cust[0], "CustID": cust[1] for cust in names_and_ids}]
+
+    return jsonify({"CustomerList": customer_list}), 200
+
+    
+
+    
 def ValidationCheck(details) -> bool:    # returns true or false depending on if name is fine
 
     for info in details:
@@ -339,8 +371,6 @@ def log_in():
             user_id = get_user_id(email)
 
             if current_refresh_token is None:       # user is logging in from different device, so new refresh token needs to be issued
-
-                print(current_refresh_token, "this shouldnt be here")
 
                 plain_refresh_token = add_refresh_token(user_id)
 
