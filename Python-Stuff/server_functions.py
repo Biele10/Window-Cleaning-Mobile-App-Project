@@ -271,7 +271,7 @@ def get_customers():
 
     cursor.execute(GET_CUSTOMERS_STATEMENT, user_id,)
 
-    database.commit()
+    database_connect.commit()
 
     names_and_ids = cursor.fetchall()      # only names are shown, but user will be able to find more information
                                         # on each customer if needed with their customer id.
@@ -280,7 +280,7 @@ def get_customers():
 
         return jsonify({"message": "You currently have no customers."}), 400
 
-    customer_list = [{"Name": cust[0], "CustID": cust[1] for cust in names_and_ids}]
+    customer_list = [{"Name": cust[0], "CustID": cust[1]} for cust in names_and_ids]
 
     return jsonify({"CustomerList": customer_list}), 200
 
