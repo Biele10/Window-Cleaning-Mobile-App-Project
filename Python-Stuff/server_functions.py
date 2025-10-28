@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import os
 import bcrypt
 import time
+import decimal
 import hashlib
 import jwt
 import secrets
@@ -266,6 +267,7 @@ def get_customers():
     if not acc_tok_validitiy:
 
         return jsonify({"message": "Session has expired."}), 401
+        
 
     GET_CUSTOMERS_STATEMENT = "SELECT * Name, CustomerID FROM Customers WHERE UserID = %s"
 
@@ -387,10 +389,44 @@ def log_in():
         return jsonify({"message": "Password was incorrect, please try again."}), 400       # passwords did not match, user not logged in
 
 
+@app.route('/add_job', method=['POST'])
+def add_job():
+    data = request.get_json()
+    accToken = data.get('access_token')
+    customer_id = data.get('CustomerID')
+    job_time = data.get('Time')
+    job_date = data.get('Date')
+    add_info = data.get('AddInfo')
+    price = data.get('Price')
 
-            
+    values = (job_time, job_date, add_info, price)
 
-            
+    if not ValidationCheck(values):
+
+        return jsonify({"message": "Each field must contain less than 256 characters."}), 400
+
+    if not verify_access_token(accToken):
+
+        return jsonify({"message": "Session has expired."}), 401
+
+    ADD_JOB_STATEMENT = "INSERT INTO Jobs (CustomerID, Time, Date, AddInfo, Price) VALUES(%s, %s, %s, %s, %s)"
+
+    decimal_price = decimal(price)      # allows for greater numerical accuracy
+
+    # insert statement to convert job_time into correct datatype
+
+    # same with job_date, i know i will use datetime but i need to know what flutter will use first
+
+    table_values = (customer_id, job_time, job_date, add_info, decimal_price)
+
+    cursor.execute(ADD_JOB_STATEMENT, table_values)
+
+    database_connect.commit()
+
+    return jsonify({"message": "Job was successfully added."}), 200
+
+
+
 
 
 
