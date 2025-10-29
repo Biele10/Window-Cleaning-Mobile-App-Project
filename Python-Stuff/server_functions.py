@@ -413,7 +413,7 @@ def add_job():
 
     decimal_price = decimal(price)      # allows for greater numerical accuracy
 
-    # insert statement to convert job_time into correct datatype
+    job_time = datetime.utc(job_time)   # converts time into utc time
 
     # same with job_date, i know i will use datetime but i need to know what flutter will use first
 
