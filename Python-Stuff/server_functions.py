@@ -78,7 +78,7 @@ def generate_access_token(user_id = None):     # function to generate an access 
     else:       # return statement for python function
 
         return token
-
+@app.route('/verify_access_tokens', methods=['POST'])
 def verify_access_token(token):     # function to verify an access token
     try:        # try and except statements are used because jwt returns particular errors rather than just a true or false
         payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
@@ -89,6 +89,45 @@ def verify_access_token(token):     # function to verify an access token
         return False, "Invalid token"           # the bool statements will be used by whatever the original function was
                                                 # to determine whether the access token was correct or not
 
+def generate_user_id():
+
+    unique_id = False   
+
+    while unique_id is False:   # could use while True/False but prefer this more understandable approach
+
+        user_id = secrets.token_urlsafe(32)
+
+        CHECK_USER_ID_STATEMENT = "SELECT 1 FROM Users WHERE UserID = %s"
+
+        cursor.execute(CHECK_USER_ID_STATEMENT, (user_id,))
+
+        result = cursor.fetchone()
+
+        if not result:  # userid doesn't exist, it is unique
+
+            unique_id = True
+
+            return user_id
+
+def generate_customer_id():     # generates a unique customer id
+
+    unique_id = False   
+
+    while unique_id is False:
+
+        cust_id = secrets.token_urlsafe(32)
+
+        CHECK_USER_ID_STATEMENT = "SELECT 1 FROM UserCustomer WHERE CustomerID = %s"
+
+        cursor.execute(CHECK_USER_ID_STATEMENT, (cust_id,))
+
+        result = cursor.fetchone()
+
+        if not result:  # userid doesn't exist, it is unique
+
+            unique_id = True
+
+            return cust_id
 
 @app.route('/verify_refresh_token', methods =['POST'])
 def verify_refresh_token():
@@ -237,18 +276,34 @@ def add_customer():         # function that stores customer data in database
     if not acc_tok_validitiy:
 
         return jsonify({"message": "Session has expired."}), 401
+    
+    customer_id = generate_customer_id()
 
-    values = (user_id, name, address, regularity, email, phone, add_info)        # creates tuple which can be passed into SQL statement
+    values = (customer_id, name, address, regularity, email, phone, add_info)        # creates tuple which can be passed into SQL statement
 
     if ValidationCheck(values):         # if true is returned, sql can proceed
 
-        customer_sql_statement = "INSERT INTO Customers (UserID, Name, Address, Regularity, Email, Phone, Additional_Information) VALUES (%s, %s, %s, %s, %s, %s, %s)"      
+        CUSTOMER_STATEMENT = "INSERT INTO Customers (CustomerID, Name, Address, Regularity, Email, Phone, Additional_Information) VALUES (%s, %s, %s, %s, %s, %s, %s)"      
 
         # prevents SQL as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
 
-        cursor.execute(customer_sql_statement, values)       # adds values to database
+        cursor.execute(CUSTOMER_STATEMENT, values)       # adds values to database
 
         database_connect.commit()   # commits the change to the database
+
+    else:
+
+        return jsonify({"message": "Fields can only be a maximum of 255 characters."}), 401
+
+    user_job_values = (user_id, customer_id)
+
+    if ValidationCheck(user_job_values):
+
+        USER_CUSTOMER_STATEMENT = "INSERT INTO UserCustomer (UserID, CustomerID) VALUES (%s, %s)"
+
+        cursor.execute(USER_CUSTOMER_STATEMENT, user_job_values)
+
+        database_connect.commit()
 
     else:
 
@@ -314,19 +369,17 @@ def sign_up():
 
         if email_check is False:     # if the email is not already in use (false was returned), the user can sign up successfully
 
-            values = (email, hashed_password, forename, surname)       # remakes values tuple so all data can be inputted together
+            user_id = generate_user_id()
 
-            SIGN_UP_SQL_STATEMENT = "INSERT INTO Users (Email, Password, Forename, Surname) VALUES (%s, %s, %s, %s)"      
+            values = (user_id, email, hashed_password, forename, surname)       # remakes values tuple so all data can be inputted together
+
+            SIGN_UP_SQL_STATEMENT = "INSERT INTO Users (UserID, Email, Password, Forename, Surname) VALUES (%s, %s, %s, %s, %s)"      
 
             # prevents SQL injection as %s tells the database (MYSQL) that the data being passed through is ONLY data, therefore cannot be used in order to access/alter the database - prevents SQL injection
 
             cursor.execute(SIGN_UP_SQL_STATEMENT, values)       # adds values, refresh token and expiration date of refresh token to database
 
             database_connect.commit()   # commits the change to the database
-
-            time.sleep(0.25)
-
-            user_id = get_user_id(email)
 
             plain_refresh_token = add_refresh_token(user_id)      # adds new refresh token into database and returns plain text refresh token to send to user
 
@@ -424,6 +477,11 @@ def add_job():
     database_connect.commit()
 
     return jsonify({"message": "Job was successfully added."}), 200
+
+def get_jobs():
+    data = request.get_json()
+
+
 
 
 
