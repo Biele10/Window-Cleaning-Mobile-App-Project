@@ -324,7 +324,7 @@ def get_customers():
         return jsonify({"message": "Session has expired."}), 401
         
 
-    GET_CUSTOMERS_STATEMENT = "SELECT * Name, CustomerID FROM Customers WHERE UserID = %s"
+    GET_CUSTOMERS_STATEMENT = "SELECT c.Name, c.CustomerID FROM UserCustomer uc JOIN Customer c ON uc.CustomerID = c.CustomerID WHERE uc.UserID = %s"       # makes use of the linking table
 
     cursor.execute(GET_CUSTOMERS_STATEMENT, user_id,)
 
