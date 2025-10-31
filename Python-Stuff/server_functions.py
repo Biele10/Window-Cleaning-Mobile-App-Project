@@ -295,7 +295,7 @@ def add_customer():         # function that stores customer data in database
 
         return jsonify({"message": "Fields can only be a maximum of 255 characters."}), 401
 
-    user_job_values = (user_id, customer_id)
+    user_job_values = (str(user_id), str(customer_id))
 
     if ValidationCheck(user_job_values):
 
@@ -304,6 +304,8 @@ def add_customer():         # function that stores customer data in database
         cursor.execute(USER_CUSTOMER_STATEMENT, user_job_values)
 
         database_connect.commit()
+
+        return jsonify({'message': 'Customer successfully added.'}), 200
 
     else:
 
@@ -442,7 +444,7 @@ def log_in():
         return jsonify({"message": "Password was incorrect, please try again."}), 400       # passwords did not match, user not logged in
 
 
-@app.route('/add_job', method=['POST'])
+@app.route('/add_job', methods=['POST'])
 def add_job():
     data = request.get_json()
     accToken = data.get('access_token')
@@ -451,6 +453,7 @@ def add_job():
     job_date = data.get('Date')
     add_info = data.get('AddInfo')
     price = data.get('Price')
+    user_time_zone = data.get('Timezone')
 
     values = (job_time, job_date, add_info, price)
 
@@ -465,8 +468,6 @@ def add_job():
     ADD_JOB_STATEMENT = "INSERT INTO Jobs (CustomerID, Time, Date, AddInfo, Price) VALUES(%s, %s, %s, %s, %s)"
 
     decimal_price = decimal(price)      # allows for greater numerical accuracy
-
-    job_time = datetime.utc(job_time)   # converts time into utc time
 
     # same with job_date, i know i will use datetime but i need to know what flutter will use first
 

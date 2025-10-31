@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 
 class AddCustomer extends StatefulWidget {
@@ -171,12 +172,16 @@ Future<http.Response> createAlbum(
   String emailAddress,
   String phoneNumber,
   String addInfo,
-) {
+) async {
+  final storage = FlutterSecureStorage();
+
+  String? userID = await storage.read(key: 'user_id');
+
   return http.post(
     Uri.parse('http://192.168.1.231:5000/add_customer'), // url of server to send
     // data to
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
-    body: jsonEncode(<String, String>{
+    body: jsonEncode(<String, String?>{
       // encodes all the saved data into json format
       'Name': name,
       'Address': address,
@@ -184,6 +189,7 @@ Future<http.Response> createAlbum(
       'Email': emailAddress,
       'Phone': phoneNumber,
       'AddInfo': addInfo,
+      'UserID': userID,
     }),
   );
 }
