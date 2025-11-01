@@ -19,7 +19,7 @@ class _FirstScreenState extends State<FirstScreen> {
       // will run the OrdersWidget constructor
       appBar: AppBar(
         // displays a bar at the top of the screen with the title of the app
-        title: Text('Sponge'),
+        title: Text('Handyman'),
         backgroundColor: Colors.grey[900],
         centerTitle: true,
         foregroundColor: Colors.grey[50],

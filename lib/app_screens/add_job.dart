@@ -15,10 +15,13 @@ class _AddJobState extends State<AddJob> {
   final _timeController = TextEditingController();
   final _dateController = TextEditingController();
   final _priceController = TextEditingController();
+  final _addInfoController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color(0xFF37454a),
+
       appBar: AppBar(
         centerTitle: true,
         title: Text("Add Job"),
@@ -31,9 +34,135 @@ class _AddJobState extends State<AddJob> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
-                TextFormField(decoration: InputDecoration(hintText: "Date")),
-
-                TextFormField(decoration: InputDecoration(hintText: "Time")),
+                // contains list of all TextFormField widgets
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
+                    controller:
+                        _customerController, // allows for text that is entered
+                    // within a textbox to be retrieved
+                    decoration: InputDecoration(
+                      hintText: 'Customer',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                    ), // hint text to tell user what to
+                    // type in there
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
+                    controller: _timeController,
+                    decoration: InputDecoration(
+                      hintText: 'Time',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        // used in order to verify whether
+                        // the user has entered any information at all
+                        return 'This detail is required.';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
+                    controller: _dateController,
+                    decoration: InputDecoration(
+                      hintText: 'Date',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
+                    controller:
+                        _priceController, // allows for text that is entered
+                    // within a textbox to be retrieved
+                    decoration: InputDecoration(
+                      hintText: 'Price',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                    ), // hint text to tell user what to
+                    // type in there
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(20.0),
+                  child: TextField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
+                    controller: _addInfoController,
+                    maxLines: 6,
+                    decoration: InputDecoration(
+                      hintText: "Additional Information",
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                      alignLabelWithHint: true,
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.all(17.0),
+                  child: Center(
+                    child: ElevatedButton(
+                      // + button at bottom of screen
+                      // to submit information
+                      onPressed: () {
+                        return;
+                      },
+                      style: ButtonStyle(
+                        minimumSize: WidgetStateProperty.all(Size(65, 60)),
+                        maximumSize: WidgetStateProperty.all(Size(65, 60)),
+                      ),
+                      child: Icon(Icons.add),
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
