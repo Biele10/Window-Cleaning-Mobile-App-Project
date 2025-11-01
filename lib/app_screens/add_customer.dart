@@ -24,6 +24,7 @@ class _AddCustomerState extends State<AddCustomer> {
     return Form(
       key: _formKey,
       child: Scaffold(
+        backgroundColor: Color(0xFF37454a),
         appBar: AppBar(
           centerTitle: true,
           title: Text('Add Customer Details'),
@@ -40,11 +41,21 @@ class _AddCustomerState extends State<AddCustomer> {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
                     controller:
                         _nameController, // allows for text that is entered
                     // within a textbox to be retrieved
                     decoration: InputDecoration(
-                      labelText: 'Name',
+                      hintText: 'Name',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
                     ), // hint text to tell user what to
                     // type in there
                   ),
@@ -52,8 +63,20 @@ class _AddCustomerState extends State<AddCustomer> {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
                     controller: _addressController,
-                    decoration: InputDecoration(labelText: 'Address'),
+                    decoration: InputDecoration(
+                      hintText: 'Address',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                    ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         // used in order to verify whether
@@ -67,31 +90,77 @@ class _AddCustomerState extends State<AddCustomer> {
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
                     controller: _regularityController,
-                    decoration: InputDecoration(labelText: 'Regularity'),
+                    decoration: InputDecoration(
+                      hintText: 'Regularity',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                    ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
                     controller: _emailController,
-                    decoration: InputDecoration(labelText: 'Email Address'),
+                    decoration: InputDecoration(
+                      hintText: 'Email Address',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                    ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextFormField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
                     controller: _phoneController,
-                    decoration: InputDecoration(labelText: 'Phone Number'),
+                    decoration: InputDecoration(
+                      hintText: 'Phone Number',
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
+                    ),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
                   child: TextField(
+                    style: TextStyle(
+                      color: Color(0xFFffffff),
+                      fontSize: 18,
+                      fontFamily: "FunnelDisplay",
+                    ),
                     controller: _additionalinfoController,
                     maxLines: 6,
                     decoration: InputDecoration(
-                      labelText: "Additional Information",
+                      hintText: "Additional Information",
+                      hintStyle: TextStyle(
+                        color: Color(0xFFffffff),
+                        fontSize: 18,
+                        fontFamily: 'FunnelDisplay',
+                      ),
                       alignLabelWithHint: true,
                     ),
                   ),

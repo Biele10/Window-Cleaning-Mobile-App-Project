@@ -24,7 +24,7 @@ class _FirstScreenState extends State<FirstScreen> {
         centerTitle: true,
         foregroundColor: Colors.grey[50],
       ),
-      backgroundColor: Color(0xFF2E8B57),
+      backgroundColor: Color(0xFF37454a),
       bottomNavigationBar: BottomNavigationBar(
         // navigation bar at the bottom
         // of the screen
