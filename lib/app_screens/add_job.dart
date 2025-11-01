@@ -16,6 +16,7 @@ class _AddJobState extends State<AddJob> {
   final _dateController = TextEditingController();
   final _priceController = TextEditingController();
   final _addInfoController = TextEditingController();
+  DateTime currentDate = DateTime.now();
 
   @override
   Widget build(BuildContext context) {
@@ -59,29 +60,13 @@ class _AddJobState extends State<AddJob> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: TextFormField(
-                    style: TextStyle(
-                      color: Color(0xFFffffff),
-                      fontSize: 18,
-                      fontFamily: "FunnelDisplay",
-                    ),
-                    controller: _timeController,
-                    decoration: InputDecoration(
-                      hintText: 'Time',
-                      hintStyle: TextStyle(
-                        color: Color(0xFFffffff),
-                        fontSize: 18,
-                        fontFamily: 'FunnelDisplay',
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        // used in order to verify whether
-                        // the user has entered any information at all
-                        return 'This detail is required.';
-                      }
-                      return null;
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final date = await chooseDate(context, currentDate);
                     },
+                    child: Text(
+                      '${currentDate.day}/${currentDate.month}/${currentDate.year}',
+                    ),
                   ),
                 ),
                 Padding(
@@ -101,6 +86,14 @@ class _AddJobState extends State<AddJob> {
                         fontFamily: 'FunnelDisplay',
                       ),
                     ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        // used in order to verify whether
+                        // the user has entered any information at all
+                        return 'This detail is required.';
+                      }
+                      return null;
+                    },
                   ),
                 ),
                 Padding(
@@ -186,7 +179,7 @@ Future<http.Response> createAlbum(
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
     body: jsonEncode(<String, String>{
       // encodes all the saved data into json format
-      'RequestType': 'add_customer', // tells the server the type of request
+      'CustomerID': 'temp',
       'Name': name,
       'Address': address,
       'Regularity': regularity,
@@ -196,3 +189,11 @@ Future<http.Response> createAlbum(
     }),
   );
 }
+
+Future<DateTime?> chooseDate(BuildContext context, DateTime curDate) =>
+    showDatePicker(
+      context: context,
+      initialDate: curDate,
+      firstDate: curDate,
+      lastDate: DateTime(2100),
+    );
