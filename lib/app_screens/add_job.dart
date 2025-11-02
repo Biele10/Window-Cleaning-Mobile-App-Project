@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -20,6 +21,9 @@ class _AddJobState extends State<AddJob> {
 
   @override
   Widget build(BuildContext context) {
+    final hours = currentDate.hour.toString().padLeft(2, '0');
+    final minutes = currentDate.minute.toString().padLeft(2, '0');
+
     return Scaffold(
       backgroundColor: Color(0xFF37454a),
 
@@ -62,38 +66,40 @@ class _AddJobState extends State<AddJob> {
                   padding: const EdgeInsets.all(20.0),
                   child: ElevatedButton(
                     onPressed: () async {
-                      final date = await chooseDate(context, currentDate);
+                      final time = await chooseTime();
+                      if (time == null) {
+                        return;
+                      } else {
+                        final chosenTime = DateTime(
+                          currentDate.year,
+                          currentDate.month,
+                          currentDate.day,
+                          time.hour,
+                          time.minute,
+                        );
+                      }
                     },
-                    child: Text(
-                      '${currentDate.day}/${currentDate.month}/${currentDate.year}',
-                    ),
+                    child: Text('$hours:$minutes'),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.all(20.0),
-                  child: TextFormField(
-                    style: TextStyle(
-                      color: Color(0xFFffffff),
-                      fontSize: 18,
-                      fontFamily: "FunnelDisplay",
-                    ),
-                    controller: _dateController,
-                    decoration: InputDecoration(
-                      hintText: 'Date',
-                      hintStyle: TextStyle(
-                        color: Color(0xFFffffff),
-                        fontSize: 18,
-                        fontFamily: 'FunnelDisplay',
-                      ),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        // used in order to verify whether
-                        // the user has entered any information at all
-                        return 'This detail is required.';
+                  child: ElevatedButton(
+                    onPressed: () async {
+                      final date = await chooseDate();
+                      if (date == null) {
+                        return;
+                      } else {
+                        final chosenDate = DateTime(
+                          date.year,
+                          date.month,
+                          date.day,
+                        );
                       }
-                      return null;
                     },
+                    child: Text(
+                      '${currentDate.day}/${currentDate.month}/${currentDate.year}',
+                    ),
                   ),
                 ),
                 Padding(
@@ -163,6 +169,18 @@ class _AddJobState extends State<AddJob> {
       ),
     );
   }
+
+  Future<DateTime?> chooseDate() => showDatePicker(
+    context: context,
+    initialDate: currentDate,
+    firstDate: currentDate,
+    lastDate: DateTime(2100),
+  );
+
+  Future<TimeOfDay?> chooseTime() => showTimePicker(
+    context: context,
+    initialTime: TimeOfDay(hour: currentDate.hour, minute: currentDate.minute),
+  );
 }
 
 Future<http.Response> createAlbum(
@@ -189,11 +207,3 @@ Future<http.Response> createAlbum(
     }),
   );
 }
-
-Future<DateTime?> chooseDate(BuildContext context, DateTime curDate) =>
-    showDatePicker(
-      context: context,
-      initialDate: curDate,
-      firstDate: curDate,
-      lastDate: DateTime(2100),
-    );
