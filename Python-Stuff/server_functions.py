@@ -137,9 +137,12 @@ def verify_refresh_token():
     user_id = data.get('UserID')
     old_token = data.get('RefreshToken')
 
+    print(user_id)
+    print(old_token)
+
     if old_token is None:
 
-        return jsonify({}), 400
+        return jsonify({'message': 'User has not logged in.'}), 400
 
     hashed_token = hash_token(old_token)        # returns the hash of the token
 
@@ -160,7 +163,7 @@ def verify_refresh_token():
 
         if expiration_date < current_utc_time:          # expiration date has been passed
 
-            return jsonify({}), 400
+            return jsonify({'message': 'Token has expired.'}), 400
         
         else:
 
@@ -170,7 +173,7 @@ def verify_refresh_token():
 
     else:
 
-        return jsonify({}), 400        # refresh token or user id did not match / didn't exist
+        return jsonify({'message': values}), 400        # refresh token or user id did not match / didn't exist
 
 def add_refresh_token(user_id):       # inserts new refresh token into database
 
@@ -480,8 +483,28 @@ def add_job():
     return jsonify({"message": "Job was successfully added."}), 200
 
 def get_jobs():
-    data = request.get_json()
 
+    data = request.get_json()
+    user_id = data.get('UserID')
+    accToken = data.get('AccessToken')
+
+    if not verify_access_token(accToken):
+
+        return jsonify({'message': 'Session expired.'}), 400
+    
+    GET_JOBS_STATEMENT = "SELECT job.JobID, job.CustomerID, job.Time, job.Date, job.AddInfo, job.Price FROM UserJob uj JOIN Jobs job ON uj.JobID = job.JobID WHERE uj.UserID = %s"
+
+    cursor.execute(GET_JOBS_STATEMENT, (user_id,))
+
+    job_desc = cursor.fetchall()
+
+    if not job_desc:
+
+        return jsonify({'message': 'You currently have no jobs.'}), 400
+
+    job_list = [{"JobID": job[0], "CustomerID": job[1], 'Time': job[2], 'Date': job[3], 'AddInfo': job[4], 'Price': job[5]} for job in job_desc]
+
+    return jsonify({'Jobs': job_list}), 200     # returns list of all jobs user currently has
 
 
 

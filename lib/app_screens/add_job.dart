@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:ffi';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -13,8 +12,6 @@ class AddJob extends StatefulWidget {
 class _AddJobState extends State<AddJob> {
   // able to access user inputs
   final _customerController = TextEditingController();
-  final _timeController = TextEditingController();
-  final _dateController = TextEditingController();
   final _priceController = TextEditingController();
   final _addInfoController = TextEditingController();
   DateTime currentDate = DateTime.now();

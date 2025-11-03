@@ -65,8 +65,6 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
     }
 
     Future<bool> verifyRefreshToken() async {
-      print("this func was called lmao");
-
       String? userID = await storage.read(key: 'user_id');
 
       print(refreshTokenCheck);
@@ -83,6 +81,14 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
           'RefreshToken': refreshTokenCheck,
         }),
       );
+
+      if (response.statusCode == 400) {
+        final data = jsonDecode(response.body);
+
+        String? err = data['message'];
+
+        print(err);
+      }
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
@@ -112,7 +118,6 @@ class _MyFlutterAppState extends State<MyFlutterApp> {
 
           return true;
         } else {
-          print("we shouldn't be here");
           return false;
         }
       }
