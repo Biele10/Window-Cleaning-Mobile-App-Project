@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 
 class AddJob extends StatefulWidget {
   const AddJob({super.key});
@@ -15,11 +17,18 @@ class _AddJobState extends State<AddJob> {
   final _priceController = TextEditingController();
   final _addInfoController = TextEditingController();
   DateTime currentDate = DateTime.now();
+  dynamic curTime = 'Select a Time';
+  dynamic curDate = 'Select a Date';
 
   @override
   Widget build(BuildContext context) {
     final hours = currentDate.hour.toString().padLeft(2, '0');
     final minutes = currentDate.minute.toString().padLeft(2, '0');
+    final DateFormat formatter =
+        DateFormat.yMMMd(); // sets the format for the date
+    dynamic dateToDisplay = (curDate == 'Select a Date')
+        ? curDate
+        : formatter.format(DateUtils.dateOnly(curDate));
 
     return Scaffold(
       backgroundColor: Color(0xFF37454a),
@@ -76,7 +85,7 @@ class _AddJobState extends State<AddJob> {
                         );
                       }
                     },
-                    child: Text('$hours:$minutes'),
+                    child: Text(curTime.toString()),
                   ),
                 ),
                 Padding(
@@ -92,11 +101,12 @@ class _AddJobState extends State<AddJob> {
                           date.month,
                           date.day,
                         );
+                        curDate = date;
+                        setState(() {});
                       }
                     },
-                    child: Text(
-                      '${currentDate.day}/${currentDate.month}/${currentDate.year}',
-                    ),
+
+                    child: Text(dateToDisplay),
                   ),
                 ),
                 Padding(
@@ -188,18 +198,21 @@ Future<http.Response> createAlbum(
   String emailAddress,
   String phoneNumber,
   String addInfo,
-) {
+) async {
+  final storage = FlutterSecureStorage();
+
+  String? accessToken = await storage.read(key: 'access_token');
   return http.post(
-    Uri.parse('http://192.168.1.231:5000/add_customer'),
+    Uri.parse('http://192.168.1.231:5000/add_job'),
     headers: <String, String>{'Content-Type': 'application/json; charset=UTF-8'},
-    body: jsonEncode(<String, String>{
+    body: jsonEncode(<String, String?>{
       // encodes all the saved data into json format
       'CustomerID': 'temp',
-      'Name': name,
-      'Address': address,
-      'Regularity': regularity,
-      'Email': emailAddress,
-      'Phone': phoneNumber,
+      'access_token': accessToken,
+      'Time': address,
+      'Date': regularity,
+      'Price': emailAddress,
+      'Timezone': phoneNumber,
       'AddInfo': addInfo,
     }),
   );
