@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -76,13 +77,13 @@ class _AddJobState extends State<AddJob> {
                       if (time == null) {
                         return;
                       } else {
-                        final chosenTime = DateTime(
-                          currentDate.year,
-                          currentDate.month,
-                          currentDate.day,
-                          time.hour,
-                          time.minute,
+                        getTimeZone();
+                        String timeString = time.toString();
+                        curTime = timeString.substring(
+                          timeString.indexOf('(') + 1,
+                          timeString.indexOf(')'),
                         );
+                        setState(() {});
                       }
                     },
                     child: Text(curTime.toString()),
@@ -96,11 +97,6 @@ class _AddJobState extends State<AddJob> {
                       if (date == null) {
                         return;
                       } else {
-                        final chosenDate = DateTime(
-                          date.year,
-                          date.month,
-                          date.day,
-                        );
                         curDate = date;
                         setState(() {});
                       }
@@ -188,6 +184,13 @@ class _AddJobState extends State<AddJob> {
     context: context,
     initialTime: TimeOfDay(hour: currentDate.hour, minute: currentDate.minute),
   );
+}
+
+Future<void> getTimeZone() async {
+  // used in order to determine later on
+  // what time to convert back to
+  String timeZone = await FlutterNativeTimezone.getLocalTimezone();
+  print(timeZone);
 }
 
 Future<http.Response> createAlbum(
