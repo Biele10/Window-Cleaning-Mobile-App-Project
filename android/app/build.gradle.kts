@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.example.test2"
+    namespace = "com.example.test2.flutter_native_timezone"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = "29.0.13599879"
 

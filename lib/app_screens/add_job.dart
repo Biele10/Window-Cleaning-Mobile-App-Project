@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -17,6 +16,7 @@ class _AddJobState extends State<AddJob> {
   final _customerController = TextEditingController();
   final _priceController = TextEditingController();
   final _addInfoController = TextEditingController();
+  final _formKey = GlobalKey<FormState>();
   DateTime currentDate = DateTime.now();
   dynamic curTime = 'Select a Time';
   dynamic curDate = 'Select a Date';
@@ -77,7 +77,6 @@ class _AddJobState extends State<AddJob> {
                       if (time == null) {
                         return;
                       } else {
-                        getTimeZone();
                         String timeString = time.toString();
                         curTime = timeString.substring(
                           timeString.indexOf('(') + 1,
@@ -155,7 +154,23 @@ class _AddJobState extends State<AddJob> {
                       // + button at bottom of screen
                       // to submit information
                       onPressed: () {
-                        return;
+                        if (!mounted) {
+                          // ensures that widget has loaded
+                          return;
+                        }
+
+                        final formValidate = _formKey.currentState!.validate();
+
+                        if (!formValidate) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              // small pop up at bottom of screen temporarily
+                              content: Text(
+                                'Please enter all the information for each field.',
+                              ),
+                            ),
+                          );
+                        }
                       },
                       style: ButtonStyle(
                         minimumSize: WidgetStateProperty.all(Size(65, 60)),
@@ -184,13 +199,6 @@ class _AddJobState extends State<AddJob> {
     context: context,
     initialTime: TimeOfDay(hour: currentDate.hour, minute: currentDate.minute),
   );
-}
-
-Future<void> getTimeZone() async {
-  // used in order to determine later on
-  // what time to convert back to
-  String timeZone = await FlutterNativeTimezone.getLocalTimezone();
-  print(timeZone);
 }
 
 Future<http.Response> createAlbum(
